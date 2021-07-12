@@ -41,7 +41,11 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 
-    // Parse SDK Dependency
+    // Parse SDK Dependencies
     implementation "com.github.parse-community.Parse-SDK-Android:parse:1.18.5"
     implementation 'com.squareup.okhttp3:logging-interceptor:3.8.1' // for logging API calls to LogCat
+
+    // Smooth Bottom Bar Dependency
+    implementation 'com.github.ibrahimsn98:SmoothBottomBar:1.7.8'
+
 }

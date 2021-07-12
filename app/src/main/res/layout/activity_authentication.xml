@@ -17,7 +17,7 @@
         android:fontFamily="casual"
         android:text="@string/app_name"
         android:textAppearance="@style/TextAppearance.AppCompat.Display1"
-        android:textColor="#2196F3" />
+        android:textColor="@color/violet_blue" />
 
     <EditText
         android:id="@+id/etUsername"
