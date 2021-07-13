@@ -11,16 +11,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.example.hangspot.AuthenticationActivity;
-import com.example.hangspot.R;
+import com.example.hangspot.activities.AuthenticationActivity;
 import com.example.hangspot.databinding.FragmentProfileBinding;
 import com.parse.ParseUser;
 
-public class ProfileFragment extends Fragment {
+public class SettingsFragment extends Fragment {
 
     private FragmentProfileBinding binding;
 
-    public ProfileFragment() {
+    public SettingsFragment() {
         // Required empty public constructor
     }
 

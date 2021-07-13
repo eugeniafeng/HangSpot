@@ -1,4 +1,4 @@
-package com.example.hangspot;
+package com.example.hangspot.utils;
 
 import android.app.Application;
 

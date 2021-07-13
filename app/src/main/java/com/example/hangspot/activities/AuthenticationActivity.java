@@ -1,4 +1,4 @@
-package com.example.hangspot;
+package com.example.hangspot.activities;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;

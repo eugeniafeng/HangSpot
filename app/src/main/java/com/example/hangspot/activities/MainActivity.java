@@ -1,18 +1,15 @@
-package com.example.hangspot;
+package com.example.hangspot.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import android.os.Bundle;
-import android.widget.Toast;
 
 import com.example.hangspot.databinding.ActivityMainBinding;
 import com.example.hangspot.fragments.ComposeFragment;
 import com.example.hangspot.fragments.GroupsFragment;
-import com.example.hangspot.fragments.ProfileFragment;
-
-import java.security.acl.Group;
+import com.example.hangspot.fragments.SettingsFragment;
 
 import me.ibrahimsn.lib.OnItemSelectedListener;
 
@@ -31,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
         fragmentManager.beginTransaction().replace(binding.flContainer.getId(), new GroupsFragment()).commit();
         binding.bottomBar.setItemActiveIndex(0);
 
+        // leave as anonymous function, not lambda to avoid ambiguity
         binding.bottomBar.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public boolean onItemSelect(int i) {
@@ -44,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
                         break;
                     case 2:
                     default:
-                        fragment = new ProfileFragment();
+                        fragment = new SettingsFragment();
                         break;
                 }
                 fragmentManager.beginTransaction().replace(binding.flContainer.getId(), fragment).commit();

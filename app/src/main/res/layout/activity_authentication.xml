@@ -8,7 +8,7 @@
     android:orientation="vertical"
     android:paddingStart="16dp"
     android:paddingEnd="16dp"
-    tools:context=".AuthenticationActivity">
+    tools:context=".activities.AuthenticationActivity">
 
     <TextView
         android:id="@+id/tvTitle"
