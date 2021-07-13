@@ -98,298 +98,50 @@ HangSpot allows friend groups to map out each others' location and pick a centra
 ## Schema 
 
 ### Models
-
 **Model: User**
 
-
-<table>
-  <tr>
-   <td><strong>Property</strong>
-   </td>
-   <td><strong>Type</strong>
-   </td>
-   <td><strong>Description</strong>
-   </td>
-  </tr>
-  <tr>
-   <td>objectId
-   </td>
-   <td>String
-   </td>
-   <td>Unique id for the user (default field)
-   </td>
-  </tr>
-  <tr>
-   <td>username
-   </td>
-   <td>String
-   </td>
-   <td>Username used to log in
-   </td>
-  </tr>
-  <tr>
-   <td>password
-   </td>
-   <td>String
-   </td>
-   <td>Password used to log in
-   </td>
-  </tr>
-  <tr>
-   <td>email
-   </td>
-   <td>String
-   </td>
-   <td>Email associated with account
-   </td>
-  </tr>
-  <tr>
-   <td>groups
-   </td>
-   <td>Array of Pointers to Group objectIds
-   </td>
-   <td>List of groups the user is in
-   </td>
-  </tr>
-  <tr>
-   <td>createdAt
-   </td>
-   <td>DateTime
-   </td>
-   <td>Date when post is created (default field)
-   </td>
-  </tr>
-  <tr>
-   <td>updatedAt
-   </td>
-   <td>DateTime
-   </td>
-   <td>Date when post is last updated (default field)
-   </td>
-  </tr>
-</table>
-
+| Property  | Type                                 | Description                                    |
+| --------- | ------------------------------------ | ---------------------------------------------- |
+| objectId  | String                               | Unique id for the user (default field)         |
+| username  | String                               | Username used to log in                        |
+| password  | String                               | Password used to log in                        |
+| email     | String                               | Email associated with account                  |
+| groups    | Array of Pointers to Group objectIds | List of groups the user is in                  |
+| createdAt | DateTime                             | Date when post is created (default field)      |
+| updatedAt | DateTime                             | Date when post is last updated (default field) |
 
 **Model: Group**
-
-
-<table>
-  <tr>
-   <td><strong>Property</strong>
-   </td>
-   <td><strong>Type</strong>
-   </td>
-   <td><strong>Description</strong>
-   </td>
-  </tr>
-  <tr>
-   <td>objectId
-   </td>
-   <td>String
-   </td>
-   <td>Unique id for the group (default field)
-   </td>
-  </tr>
-  <tr>
-   <td>users
-   </td>
-   <td>Array of Pointers to Users
-   </td>
-   <td>List of users included in the group
-   </td>
-  </tr>
-  <tr>
-   <td>locationCandidates
-   </td>
-   <td>Array of Pointers to Locations
-   </td>
-   <td>List of possible locations chosen by users in the group
-   </td>
-  </tr>
-  <tr>
-   <td>rankings
-   </td>
-   <td>JSON Object/map
-   </td>
-   <td>List of the rankings of each user
-   </td>
-  </tr>
-  <tr>
-   <td>status
-   </td>
-   <td>Number
-   </td>
-   <td>Status of group - 0 for entering locations, 1 for selecting locations, 2 for voting, 3 for completed
-   </td>
-  </tr>
-  <tr>
-   <td>userStatuses
-   </td>
-   <td>JSON Object/map
-   </td>
-   <td>List of if user has completed the task for the current status
-   </td>
-  </tr>
-  <tr>
-   <td>centralLocation
-   </td>
-   <td>Pointer to Location
-   </td>
-   <td>Calculated central location of the group
-   </td>
-  </tr>
-  <tr>
-   <td>finalLocation
-   </td>
-   <td>Pointer to Location
-   </td>
-   <td>Final location selected by the group
-   </td>
-  </tr>
-  <tr>
-   <td>createdAt
-   </td>
-   <td>DateTime
-   </td>
-   <td>Date when post is created (default field)
-   </td>
-  </tr>
-  <tr>
-   <td>updatedAt
-   </td>
-   <td>DateTime
-   </td>
-   <td>Date when post is last updated (default field)
-   </td>
-  </tr>
-</table>
-
+| Property           | Type                           | Description                                                                                          |
+| ------------------ | ------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| objectId           | String                         | Unique id for the user (default field)                                                               |
+| users              | Array of Pointers to Users     | List of users included in the group                                                                  |
+| locationCandidates | Array of Pointers to Locations | List of possible locations chosen by users in the group                                              |
+| rankings           | JSON Object/map                | List of the rankings of each user                                                                    |
+| status             | Number                         | Status of group - 0 for entering locations, 1 for selecting locations, 2 for voting, 3 for completed |
+| userStatuses       | JSON Object/map                | List of if user has completed the task for the current status                                        |
+| centralLocation    | Pointer to Location            | Calculated central location of the group                                                             |
+| finalLocation      | Pointer to Location            | Final location selected by the group                                                                 |
+| createdAt          | DateTime                       | Date when post is created (default field)                                                            |
+| updatedAt          | DateTime                       | Date when post is last updated (default field)                                                       |
 
 **Model: Location**
 
-
-<table>
-  <tr>
-   <td><strong>Property</strong>
-   </td>
-   <td><strong>Type</strong>
-   </td>
-   <td><strong>Description</strong>
-   </td>
-  </tr>
-  <tr>
-   <td>objectId
-   </td>
-   <td>String
-   </td>
-   <td>Unique id for the location (default field)
-   </td>
-  </tr>
-  <tr>
-   <td>lat
-   </td>
-   <td>Number
-   </td>
-   <td>Latitude of the location
-   </td>
-  </tr>
-  <tr>
-   <td>lon
-   </td>
-   <td>Number
-   </td>
-   <td>Longitude of the location
-   </td>
-  </tr>
-  <tr>
-   <td>name
-   </td>
-   <td>String
-   </td>
-   <td>Name of the location
-   </td>
-  </tr>
-  <tr>
-   <td>description
-   </td>
-   <td>String
-   </td>
-   <td>User entered description
-   </td>
-  </tr>
-  <tr>
-   <td>address
-   </td>
-   <td>String
-   </td>
-   <td>Address of the location
-   </td>
-  </tr>
-  <tr>
-   <td>city
-   </td>
-   <td>String
-   </td>
-   <td>City of the location
-   </td>
-  </tr>
-  <tr>
-   <td>state
-   </td>
-   <td>String
-   </td>
-   <td>State of the location
-   </td>
-  </tr>
-  <tr>
-   <td>postalCode
-   </td>
-   <td>String
-   </td>
-   <td>Zip code of the location
-   </td>
-  </tr>
-  <tr>
-   <td>country
-   </td>
-   <td>String
-   </td>
-   <td>Country of the location
-   </td>
-  </tr>
-  <tr>
-   <td>group
-   </td>
-   <td>Pointer to Group
-   </td>
-   <td>Group the location is relevant to
-   </td>
-  </tr>
-  <tr>
-   <td>addedBy
-   </td>
-   <td>Pointer to User
-   </td>
-   <td>User who added the location to the candidates
-   </td>
-  </tr>
-  <tr>
-   <td>createdAt
-   </td>
-   <td>DateTime
-   </td>
-   <td>Date when post is created (default field)
-   </td>
-  </tr>
-  <tr>
-   <td>updatedAt
-   </td>
-   <td>DateTime
-   </td>
-   <td>Date when post is last updated (default field)
-   </td>
-  </tr>
-</table>
+| Property    | Type             | Description                                    |
+| ----------- | ---------------- | ---------------------------------------------- |
+| objectId    | String           | Unique id for the user (default field)         |
+| lat         | Number           | Latitude of the location                       |
+| lon         | Number           | Longitude of the location                      |
+| name        | String           | Name of the location                           |
+| description | String           | User entered description                       |
+| address     | String           | Address of the location                        |
+| city        | String           | City of the location                           |
+| state       | String           | State of the location                          |
+| postalCode  | String           | Zip code of the location                       |
+| country     | String           | Country of the location                        |
+| group       | Pointer to Group | Group the location is relevant to              |
+| addedBy     | Pointer to User  | User who added the location to the candidates  |
+| createdAt   | DateTime         | Date when post is created (default field)      |
+| updatedAt   | DateTime         | Date when post is last updated (default field) |
 
   
 ### Networking
