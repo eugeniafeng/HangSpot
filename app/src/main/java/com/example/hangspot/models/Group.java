@@ -3,6 +3,7 @@ package com.example.hangspot.models;
 import android.util.Log;
 
 import com.parse.ParseClassName;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
@@ -12,6 +13,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 @ParseClassName("Group")
 public class Group extends ParseObject {
@@ -37,6 +39,20 @@ public class Group extends ParseObject {
         return getList(KEY_USERS);
     }
 
+    public String getUsersString() {
+        String userList = "";
+        for (ParseUser user : getUsers()) {
+            // TODO: fetching each user's username blocks up thread, figure out how to get it in groups query
+            try {
+                userList += user.fetchIfNeeded().getUsername() + ", ";
+            } catch (ParseException e) {
+                Log.e("Group", e.toString());
+                e.printStackTrace();
+            }
+        }
+        return userList.substring(0, userList.length()-2);
+    }
+
     public void setUsers(List<ParseUser> users) {
         put(KEY_USERS, users);
     }
@@ -60,6 +76,26 @@ public class Group extends ParseObject {
 
     public int getStatus() {
         return getInt(KEY_STATUS);
+    }
+
+    public String getStatusString() {
+        String status;
+        switch (getStatus()) {
+            case 0:
+                status = "Entering locations";
+                break;
+            case 1:
+                status = "Selecting location candidates";
+                break;
+            case 2:
+                status = "Voting on locations";
+                break;
+            case 3:
+            default:
+                status = "Complete";
+                break;
+        }
+        return status;
     }
 
     public void setStatus(int status) {

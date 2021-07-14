@@ -22,6 +22,7 @@ import com.example.hangspot.models.Group;
 import com.example.hangspot.utils.Constants;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.tokenautocomplete.CharacterTokenizer;
