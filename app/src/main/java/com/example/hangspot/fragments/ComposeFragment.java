@@ -104,13 +104,6 @@ public class ComposeFragment extends Fragment {
                             .show();
                 }
                 Log.i(TAG, "Group save was successful!");
-//                getActivity()
-//                        .getSupportFragmentManager()
-//                        .beginTransaction()
-//                        .replace(R.id.flContainer, new GroupsFragment())
-//                        .commit();
-//                SmoothBottomBar bottomBar = getActivity().findViewById(R.id.bottomBar);
-//                bottomBar.setItemActiveIndex(0);
             }
         });
         Intent intent = new Intent(getContext(), GroupDetailActivity.class);
