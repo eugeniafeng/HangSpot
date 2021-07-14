@@ -9,7 +9,16 @@
         android:id="@+id/completionView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fontFamily="casual" />
+        android:fontFamily="casual"
+        android:layout_below="@id/etName"
+        android:layout_marginTop="20dp" />
+
+    <EditText
+        android:id="@+id/etName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="casual"
+        android:hint="@string/group_name" />
 
     <Button
         android:id="@+id/btnSubmit"

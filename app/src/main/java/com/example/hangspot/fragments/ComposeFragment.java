@@ -73,6 +73,8 @@ public class ComposeFragment extends Fragment {
                 selectedUsers.add(ParseUser.getCurrentUser());
                 if (selectedUsers.size() < 2){
                     Toast.makeText(getContext(), "Please enter a recipient", Toast.LENGTH_SHORT).show();
+                } else if (binding.etName.getText().toString().isEmpty()){
+                    Toast.makeText(getContext(), "Please enter a group name", Toast.LENGTH_SHORT).show();
                 } else {
                     try {
                         createNewGroup(selectedUsers);
@@ -92,6 +94,7 @@ public class ComposeFragment extends Fragment {
         for (int i = 0; i < selectedUsers.size(); i++) {
             initialStatuses.put(selectedUsers.get(i).getUsername(), Integer.valueOf(0));
         }
+        group.setName(binding.etName.getText().toString());
         group.setUsers(selectedUsers);
         group.setUserStatuses(initialStatuses);
         group.saveInBackground(new SaveCallback() {

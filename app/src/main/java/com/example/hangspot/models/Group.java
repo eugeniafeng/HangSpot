@@ -16,6 +16,7 @@ import java.util.Locale;
 @ParseClassName("Group")
 public class Group extends ParseObject {
 
+    private static final String KEY_NAME = "name";
     private static final String KEY_USERS = "users";
     private static final String KEY_LOCATION_CANDIDATES = "locationCandidates";
     private static final String KEY_RANKINGS = "rankings";
@@ -23,6 +24,14 @@ public class Group extends ParseObject {
     private static final String KEY_USER_STATUSES = "userStatuses";
     private static final String KEY_CENTRAL_LOCATION = "centralLocation";
     private static final String KEY_FINAL_LOCATION = "finalLocation";
+
+    public String getName() {
+        return getString(KEY_NAME);
+    }
+
+    public void setName(String name) {
+        put(KEY_NAME, name);
+    }
 
     public List<ParseUser> getUsers() {
         return getList(KEY_USERS);
