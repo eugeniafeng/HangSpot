@@ -20,8 +20,6 @@ import java.util.List;
 
 public class UsersCompletionView extends TokenCompleteTextView<ParseUser> {
 
-    private ParseUser user;
-
     public UsersCompletionView(Context context) {
         super(context);
     }
@@ -39,7 +37,6 @@ public class UsersCompletionView extends TokenCompleteTextView<ParseUser> {
         LayoutInflater l = (LayoutInflater) getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         TextView view = (TextView) l.inflate(R.layout.user_token, (ViewGroup) getParent(), false);
         view.setText(user.getUsername());
-
         return view;
     }
 

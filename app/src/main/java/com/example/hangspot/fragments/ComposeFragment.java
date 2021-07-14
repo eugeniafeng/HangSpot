@@ -25,7 +25,6 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.tokenautocomplete.CharacterTokenizer;
-import com.tokenautocomplete.TokenCompleteTextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,7 +40,7 @@ public class ComposeFragment extends Fragment {
     private static final String TAG = "ComposeFragment";
     private FragmentComposeBinding binding;
     private List<ParseUser> allUsers;
-    private ArrayAdapter<ParseUser> adapter;
+    private UserAdapter adapter;
 
     public ComposeFragment() {
         // Required empty public constructor
@@ -59,12 +58,14 @@ public class ComposeFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        findUsers();
         if (savedInstanceState == null) {
             binding.completionView.setPrefix("To: ");
         }
+        adapter = new UserAdapter(getContext(), R.layout.item_suggestion, allUsers);
+        binding.completionView.setAdapter(adapter);
         binding.completionView.setTokenizer(
                 new CharacterTokenizer(Arrays.asList('.', ',', ' '), ","));
+
         binding.btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -82,6 +83,7 @@ public class ComposeFragment extends Fragment {
                 }
             }
         });
+        queryUsers();
     }
 
     private void createNewGroup(List<ParseUser> selectedUsers) throws JSONException {
@@ -109,18 +111,14 @@ public class ComposeFragment extends Fragment {
         showDetail(group);
     }
 
-    public void findUsers() {
+    public void queryUsers() {
         ParseQuery<ParseUser> query = ParseUser.getQuery();
         query.findInBackground((users, e) -> {
-            if (e == null && users != null) {
-                // The query was successful, returns the users that matches
-                // the criteria.
+            if (e == null) {
                 allUsers.addAll(users);
-                adapter = new UserAdapter(getContext(), R.layout.suggestion_item, allUsers);
-                binding.completionView.setAdapter(adapter);
+                adapter.notifyDataSetChanged();
             } else {
-                // Something went wrong.
-                Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.d(TAG, e.getMessage());
             }
         });
     }

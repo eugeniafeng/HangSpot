@@ -12,12 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.hangspot.activities.AuthenticationActivity;
-import com.example.hangspot.databinding.FragmentProfileBinding;
+import com.example.hangspot.databinding.FragmentSettingsBinding;
 import com.parse.ParseUser;
 
 public class SettingsFragment extends Fragment {
 
-    private FragmentProfileBinding binding;
+    private FragmentSettingsBinding binding;
 
     public SettingsFragment() {
         // Required empty public constructor
@@ -26,7 +26,7 @@ public class SettingsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = FragmentProfileBinding.inflate(inflater, container, false);
+        binding = FragmentSettingsBinding.inflate(inflater, container, false);
         // Inflate the layout for this fragment
         return binding.getRoot();
     }
