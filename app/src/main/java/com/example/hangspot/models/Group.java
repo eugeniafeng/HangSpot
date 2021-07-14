@@ -57,11 +57,11 @@ public class Group extends ParseObject {
         put(KEY_STATUS, status);
     }
 
-    public List<Integer> getUserStatuses() {
-        return getList(KEY_USER_STATUSES);
+    public JSONObject getUserStatuses() {
+        return getJSONObject(KEY_USER_STATUSES);
     }
 
-    public void setUserStatuses(List<Integer> userStatuses) {
+    public void setUserStatuses(JSONObject userStatuses) {
         put(KEY_USER_STATUSES, userStatuses);
     }
 
