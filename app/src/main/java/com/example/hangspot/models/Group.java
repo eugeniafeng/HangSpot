@@ -49,11 +49,11 @@ public class Group extends ParseObject {
         put(KEY_RANKINGS, rankings);
     }
 
-    public String getStatus() {
-        return getString(KEY_STATUS);
+    public int getStatus() {
+        return getInt(KEY_STATUS);
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         put(KEY_STATUS, status);
     }
 

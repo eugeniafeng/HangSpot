@@ -15,10 +15,15 @@ import com.example.hangspot.fragments.DetailsEnterLocationsFragment;
 import com.example.hangspot.fragments.DetailsVotingFragment;
 import com.example.hangspot.fragments.GroupsFragment;
 import com.example.hangspot.fragments.SettingsFragment;
+import com.example.hangspot.models.Group;
+import com.example.hangspot.utils.Constants;
+
+import org.parceler.Parcels;
 
 public class GroupDetailActivity extends AppCompatActivity {
 
     private ActivityGroupDetailBinding binding;
+    private Group group;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,10 +32,10 @@ public class GroupDetailActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         final FragmentManager fragmentManager = getSupportFragmentManager();
-        // TODO: pull status from database
-        int status = 0;
         Fragment fragment;
-        switch(status) {
+
+        group = Parcels.unwrap(getIntent().getParcelableExtra(Constants.KEY_GROUP));
+        switch(group.getStatus()) {
             case 0:
                 fragment = new DetailsEnterLocationsFragment();
                 break;

@@ -1,5 +1,6 @@
 package com.example.hangspot.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -14,9 +15,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.example.hangspot.R;
+import com.example.hangspot.activities.GroupDetailActivity;
 import com.example.hangspot.adapters.UserAdapter;
 import com.example.hangspot.databinding.FragmentComposeBinding;
 import com.example.hangspot.models.Group;
+import com.example.hangspot.utils.Constants;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -26,6 +29,7 @@ import com.tokenautocomplete.TokenCompleteTextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.parceler.Parcels;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -100,15 +104,18 @@ public class ComposeFragment extends Fragment {
                             .show();
                 }
                 Log.i(TAG, "Group save was successful!");
-                getActivity()
-                        .getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.flContainer, new GroupsFragment())
-                        .commit();
-                SmoothBottomBar bottomBar = getActivity().findViewById(R.id.bottomBar);
-                bottomBar.setItemActiveIndex(0);
+//                getActivity()
+//                        .getSupportFragmentManager()
+//                        .beginTransaction()
+//                        .replace(R.id.flContainer, new GroupsFragment())
+//                        .commit();
+//                SmoothBottomBar bottomBar = getActivity().findViewById(R.id.bottomBar);
+//                bottomBar.setItemActiveIndex(0);
             }
         });
+        Intent intent = new Intent(getContext(), GroupDetailActivity.class);
+        intent.putExtra(Constants.KEY_GROUP, Parcels.wrap(group));
+        getContext().startActivity(intent);
     }
 
     public void findUsers() {
