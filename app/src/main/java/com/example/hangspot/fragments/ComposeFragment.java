@@ -106,9 +106,7 @@ public class ComposeFragment extends Fragment {
                 Log.i(TAG, "Group save was successful!");
             }
         });
-        Intent intent = new Intent(getContext(), GroupDetailActivity.class);
-        intent.putExtra(Constants.KEY_GROUP, Parcels.wrap(group));
-        getContext().startActivity(intent);
+        showDetail(group);
     }
 
     public void findUsers() {
@@ -125,5 +123,19 @@ public class ComposeFragment extends Fragment {
                 Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    // First switch to groups fragment so back button will lead to correct place
+    public void showDetail(Group group) {
+        getActivity()
+                .getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flContainer, new GroupsFragment())
+                .commit();
+        SmoothBottomBar bottomBar = getActivity().findViewById(R.id.bottomBar);
+        bottomBar.setItemActiveIndex(0);
+        Intent intent = new Intent(getContext(), GroupDetailActivity.class);
+        intent.putExtra(Constants.KEY_GROUP, Parcels.wrap(group));
+        getContext().startActivity(intent);
     }
 }
