@@ -34,7 +34,7 @@ public class SettingsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         binding.btnLogout.setOnClickListener(v -> {
-            ParseUser.logOut();
+            ParseUser.logOutInBackground();
             // Return to sign up/log in and dismiss the main activity so user cannot use back button
             Intent i = new Intent(getContext(), AuthenticationActivity.class);
             startActivity(i);

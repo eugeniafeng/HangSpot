@@ -21,6 +21,7 @@ import com.example.hangspot.models.Group;
 import com.example.hangspot.models.UserGroups;
 import com.example.hangspot.utils.Constants;
 import com.google.android.material.snackbar.Snackbar;
+import com.parse.ParseACL;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.tokenautocomplete.CharacterTokenizer;
@@ -93,7 +94,6 @@ public class ComposeFragment extends Fragment {
         group.setName(binding.etName.getText().toString());
         group.setUsers(selectedUsers);
         group.setUserStatuses(initialStatuses);
-
         saveGroup(group, selectedUsers);
     }
 
@@ -106,7 +106,7 @@ public class ComposeFragment extends Fragment {
                 object.addGroup(group);
                 object.saveInBackground(error -> {
                     if (error != null) {
-                        Log.e(TAG, "Error while saving", error);
+                        Log.e(TAG, "Error while saving userGroup for " + user.getUsername(), error);
                         Snackbar.make(binding.getRoot(), "Error while saving!", Snackbar.LENGTH_SHORT)
                                 .setAction("Retry", v -> saveGroup(group, selectedUsers)).show();
                     } else {
@@ -118,7 +118,7 @@ public class ComposeFragment extends Fragment {
 
         group.saveInBackground(e -> {
             if (e != null) {
-                Log.e(TAG, "Error while saving", e);
+                Log.e(TAG, "Error while saving group", e);
                 Snackbar.make(binding.getRoot(), "Error while saving!", Snackbar.LENGTH_SHORT)
                         .setAction("Retry", v -> saveGroup(group, selectedUsers)).show();
             } else {
