@@ -9,7 +9,12 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.hangspot.databinding.ActivityAuthenticationBinding;
+import com.example.hangspot.models.UserGroups;
+import com.parse.ParseException;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
+
+import java.util.ArrayList;
 
 public class AuthenticationActivity extends AppCompatActivity {
 
@@ -76,23 +81,35 @@ public class AuthenticationActivity extends AppCompatActivity {
         }
         user.setUsername(username);
         user.setPassword(password);
-        user.signUpInBackground(e -> {
+
+        UserGroups userGroups = new UserGroups();
+        userGroups.setGroups(new ArrayList<>());
+        userGroups.saveInBackground(e -> {
             if (e != null) {
-                Log.e(TAG, "Issue with signup", e);
-                Toast.makeText(
-                        AuthenticationActivity.this,
-                        e.getMessage(),
-                        Toast.LENGTH_SHORT)
-                        .show();
-                return;
+                Log.e(TAG, "Issue with userGroups", e);
+            } else {
+                Log.i(TAG, "Successfully saved userGroup");
+
+                user.put("userGroups", userGroups);
+                user.signUpInBackground(error -> {
+                    if (error != null) {
+                        Log.e(TAG, "Issue with signup", error);
+                        Toast.makeText(
+                                AuthenticationActivity.this,
+                                error.getMessage(),
+                                Toast.LENGTH_SHORT)
+                                .show();
+                        return;
+                    }
+                    goMainActivity();
+                    Toast.makeText(
+                            AuthenticationActivity.this,
+                            "Success!",
+                            Toast.LENGTH_SHORT)
+                            .show();
+                    Log.i(TAG, "Current user: " + ParseUser.getCurrentUser().getUsername());
+                });
             }
-            goMainActivity();
-            Toast.makeText(
-                    AuthenticationActivity.this,
-                    "Success!",
-                    Toast.LENGTH_SHORT)
-                    .show();
-            Log.i(TAG, "Current user: " + ParseUser.getCurrentUser().getUsername());
         });
     }
 

@@ -18,14 +18,11 @@ import com.example.hangspot.activities.GroupDetailActivity;
 import com.example.hangspot.adapters.UserAdapter;
 import com.example.hangspot.databinding.FragmentComposeBinding;
 import com.example.hangspot.models.Group;
+import com.example.hangspot.models.UserGroups;
 import com.example.hangspot.utils.Constants;
 import com.google.android.material.snackbar.Snackbar;
-import com.parse.GetCallback;
-import com.parse.ParseACL;
-import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 import com.tokenautocomplete.CharacterTokenizer;
 
 import org.json.JSONException;
@@ -97,26 +94,36 @@ public class ComposeFragment extends Fragment {
         group.setUsers(selectedUsers);
         group.setUserStatuses(initialStatuses);
 
-        saveGroup(group);
+        saveGroup(group, selectedUsers);
     }
 
-    public void saveGroup(Group group) {
-        group.saveInBackground(new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if (e != null) {
-                    Log.e(TAG, "Error while saving", e);
-                    Snackbar.make(binding.getRoot(), "Error while saving!", Snackbar.LENGTH_SHORT)
-                            .setAction("Retry", new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            saveGroup(group);
-                        }
-                    }).show();
-                } else {
-                    Log.i(TAG, "Group save was successful!");
-                    showDetail(group);
-                }
+    public void saveGroup(Group group, List<ParseUser> selectedUsers) {
+        for (ParseUser user : selectedUsers) {
+            ParseQuery<UserGroups> query = ParseQuery.getQuery("UserGroups");
+            query.getInBackground(
+                    ((UserGroups)user.get(Constants.KEY_USER_GROUPS)).getObjectId(),
+                    (object, e) -> {
+                object.addGroup(group);
+                object.saveInBackground(error -> {
+                    if (error != null) {
+                        Log.e(TAG, "Error while saving", error);
+                        Snackbar.make(binding.getRoot(), "Error while saving!", Snackbar.LENGTH_SHORT)
+                                .setAction("Retry", v -> saveGroup(group, selectedUsers)).show();
+                    } else {
+                        Log.i(TAG, "userGroups save was successful!");
+                    }
+                });
+            });
+        }
+
+        group.saveInBackground(e -> {
+            if (e != null) {
+                Log.e(TAG, "Error while saving", e);
+                Snackbar.make(binding.getRoot(), "Error while saving!", Snackbar.LENGTH_SHORT)
+                        .setAction("Retry", v -> saveGroup(group, selectedUsers)).show();
+            } else {
+                Log.i(TAG, "Group save was successful!");
+                showDetail(group);
             }
         });
     }
