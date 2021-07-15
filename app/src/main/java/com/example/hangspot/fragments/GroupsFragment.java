@@ -30,9 +30,7 @@ public class GroupsFragment extends Fragment {
     protected GroupsAdapter adapter;
     protected List<Group> allGroups;
 
-    public GroupsFragment() {
-        // Required empty public constructor
-    }
+    public GroupsFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

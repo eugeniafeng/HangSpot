@@ -30,16 +30,12 @@ public class AuthenticationActivity extends AppCompatActivity {
 
         binding.btnLogin.setOnClickListener(v -> {
             Log.i(TAG, "onClick login button");
-            String username = binding.etUsername.getText().toString();
-            String password = binding.etPassword.getText().toString();
-            loginUser(username, password);
+            loginUser(binding.etUsername.getText().toString(), binding.etPassword.getText().toString());
         });
 
         binding.btnSignup.setOnClickListener(v -> {
             Log.i(TAG, "onClick signup button");
-            String username = binding.etUsername.getText().toString();
-            String password = binding.etPassword.getText().toString();
-            signupUser(username, password);
+            signupUser(binding.etUsername.getText().toString(), binding.etPassword.getText().toString());
         });
 
         ActionBar actionBar = getSupportActionBar();
@@ -54,7 +50,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                 Log.e(TAG, "Issue with login", e);
                 Toast.makeText(
                         AuthenticationActivity.this,
-                        "Issue with login!",
+                        e.getMessage(),
                         Toast.LENGTH_SHORT)
                         .show();
                 return;
@@ -70,6 +66,14 @@ public class AuthenticationActivity extends AppCompatActivity {
 
     private void signupUser(String username, String password) {
         ParseUser user = new ParseUser();
+        if (username.isEmpty() || password.isEmpty()) {
+            Toast.makeText(
+                    this,
+                    "Username/password cannot be blank",
+                    Toast.LENGTH_SHORT)
+                    .show();
+            return;
+        }
         user.setUsername(username);
         user.setPassword(password);
         user.signUpInBackground(e -> {
@@ -77,7 +81,7 @@ public class AuthenticationActivity extends AppCompatActivity {
                 Log.e(TAG, "Issue with signup", e);
                 Toast.makeText(
                         AuthenticationActivity.this,
-                        "Issue with sign up!",
+                        e.getMessage(),
                         Toast.LENGTH_SHORT)
                         .show();
                 return;

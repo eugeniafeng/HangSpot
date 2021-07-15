@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import com.example.hangspot.R;
@@ -20,9 +19,11 @@ import com.example.hangspot.adapters.UserAdapter;
 import com.example.hangspot.databinding.FragmentComposeBinding;
 import com.example.hangspot.models.Group;
 import com.example.hangspot.utils.Constants;
+import com.google.android.material.snackbar.Snackbar;
+import com.parse.GetCallback;
+import com.parse.ParseACL;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
-import com.parse.ParseRelation;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.tokenautocomplete.CharacterTokenizer;
@@ -43,16 +44,13 @@ public class ComposeFragment extends Fragment {
     private List<ParseUser> allUsers;
     private UserAdapter adapter;
 
-    public ComposeFragment() {
-        // Required empty public constructor
-    }
+    public ComposeFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentComposeBinding.inflate(inflater, container, false);
-        allUsers = new ArrayList<>();
         return binding.getRoot();
     }
 
@@ -62,6 +60,7 @@ public class ComposeFragment extends Fragment {
         if (savedInstanceState == null) {
             binding.completionView.setPrefix("To: ");
         }
+        allUsers = new ArrayList<>();
         adapter = new UserAdapter(getContext(), R.layout.item_suggestion, allUsers);
         binding.completionView.setAdapter(adapter);
         binding.completionView.setTokenizer(
@@ -80,7 +79,6 @@ public class ComposeFragment extends Fragment {
                     try {
                         createNewGroup(selectedUsers);
                     } catch (JSONException e) {
-                        Toast.makeText(getContext(), "Error creating group", Toast.LENGTH_SHORT).show();
                         e.printStackTrace();
                     }
                 }
@@ -92,27 +90,48 @@ public class ComposeFragment extends Fragment {
     private void createNewGroup(List<ParseUser> selectedUsers) throws JSONException {
         Group group = new Group();
         JSONObject initialStatuses = new JSONObject();
-        for (int i = 0; i < selectedUsers.size(); i++) {
-            initialStatuses.put(selectedUsers.get(i).getUsername(), Integer.valueOf(0));
+        for (ParseUser user : selectedUsers) {
+            initialStatuses.put(user.getUsername(), false);
         }
         group.setName(binding.etName.getText().toString());
         group.setUsers(selectedUsers);
         group.setUserStatuses(initialStatuses);
+
+        saveGroup(group);
+    }
+
+    public void saveGroup(Group group) {
         group.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
                 if (e != null) {
                     Log.e(TAG, "Error while saving", e);
-                    Toast.makeText(
-                            getContext(),
-                            "Error while saving!",
-                            Toast.LENGTH_SHORT)
-                            .show();
+                    Snackbar.make(binding.getRoot(), "Error while saving!", Snackbar.LENGTH_SHORT)
+                            .setAction("Retry", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            saveGroup(group);
+                        }
+                    }).show();
+                } else {
+                    Log.i(TAG, "Group save was successful!");
+                    showDetail(group);
                 }
-                Log.i(TAG, "Group save was successful!");
             }
         });
-        showDetail(group);
+    }
+
+    // First switch to groups fragment so back button will lead to correct place
+    public void showDetail(Group group) {
+        getActivity()
+                .getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flContainer, new GroupsFragment())
+                .commit();
+        ((SmoothBottomBar)getActivity().findViewById(R.id.bottomBar)).setItemActiveIndex(0);
+        Intent intent = new Intent(getContext(), GroupDetailActivity.class);
+        intent.putExtra(Constants.KEY_GROUP, Parcels.wrap(group));
+        getContext().startActivity(intent);
     }
 
     public void queryUsers() {
@@ -125,19 +144,5 @@ public class ComposeFragment extends Fragment {
                 Log.d(TAG, e.getMessage());
             }
         });
-    }
-
-    // First switch to groups fragment so back button will lead to correct place
-    public void showDetail(Group group) {
-        getActivity()
-                .getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.flContainer, new GroupsFragment())
-                .commit();
-        SmoothBottomBar bottomBar = getActivity().findViewById(R.id.bottomBar);
-        bottomBar.setItemActiveIndex(0);
-        Intent intent = new Intent(getContext(), GroupDetailActivity.class);
-        intent.putExtra(Constants.KEY_GROUP, Parcels.wrap(group));
-        getContext().startActivity(intent);
     }
 }

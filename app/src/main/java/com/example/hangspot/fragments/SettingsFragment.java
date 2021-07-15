@@ -19,9 +19,7 @@ public class SettingsFragment extends Fragment {
 
     private FragmentSettingsBinding binding;
 
-    public SettingsFragment() {
-        // Required empty public constructor
-    }
+    public SettingsFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

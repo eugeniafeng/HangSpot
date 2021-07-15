@@ -21,13 +21,16 @@ public class Group extends ParseObject {
 
     private static final String KEY_NAME = "name";
     private static final String KEY_USERS = "users";
-    private static final String KEY_USERS_STRING = "usersString";
     private static final String KEY_LOCATION_CANDIDATES = "locationCandidates";
     private static final String KEY_RANKINGS = "rankings";
     private static final String KEY_STATUS = "status";
     private static final String KEY_USER_STATUSES = "userStatuses";
     private static final String KEY_CENTRAL_LOCATION = "centralLocation";
     private static final String KEY_FINAL_LOCATION = "finalLocation";
+    private static final int SECOND_MILLIS = 1000;
+    private static final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
+    private static final int HOUR_MILLIS = 60 * MINUTE_MILLIS;
+    private static final long DAY_MILLIS = 24 * HOUR_MILLIS;
 
     public String getName() {
         return getString(KEY_NAME);
@@ -125,18 +128,8 @@ public class Group extends ParseObject {
     }
 
     public static String calculateTimeAgo(Date createdAt) {
-
-        int SECOND_MILLIS = 1000;
-        int MINUTE_MILLIS = 60 * SECOND_MILLIS;
-        int HOUR_MILLIS = 60 * MINUTE_MILLIS;
-        long DAY_MILLIS = 24 * HOUR_MILLIS;
-
         try {
-            createdAt.getTime();
-            long time = createdAt.getTime();
-            long now = System.currentTimeMillis();
-
-            final long diff = now - time;
+            final long diff = createdAt.getTime() - System.currentTimeMillis();
             if (diff < MINUTE_MILLIS) {
                 return "just now";
             } else if (diff < 2 * MINUTE_MILLIS) {

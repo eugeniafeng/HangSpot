@@ -31,15 +31,13 @@ public class UserAdapter extends FilteredArrayAdapter<ParseUser> {
             convertView = l.inflate(layoutId, parent, false);
         }
 
-        ParseUser p = getItem(position);
-        ((TextView)convertView.findViewById(R.id.tvUsername)).setText(p.getUsername());
+        ((TextView)convertView.findViewById(R.id.tvUsername)).setText(getItem(position).getUsername());
 
         return convertView;
     }
 
     @Override
     protected boolean keepObject(ParseUser user, String mask) {
-        mask = mask.toLowerCase();
-        return user.getUsername().toLowerCase().startsWith(mask);
+        return user.getUsername().toLowerCase().startsWith(mask.toLowerCase().trim());
     }
 }
