@@ -9,6 +9,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.hangspot.databinding.ItemGroupBinding;
 import com.example.hangspot.models.Group;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
 
 import java.util.List;
 
@@ -63,9 +66,12 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder
         }
 
         public void bind(Group group) {
-            binding.tvGroupName.setText(group.getName());
-            binding.tvUsers.setText(group.getUsersString());
-            binding.tvStatus.setText(group.getStatusString());
+            ParseQuery<Group> query = ParseQuery.getQuery("Group");
+            query.getInBackground(group.getObjectId(), (object, e) -> {
+                binding.tvGroupName.setText(object.getName());
+                binding.tvUsers.setText(object.getUsersString());
+                binding.tvStatus.setText(object.getStatusString());
+            });
         }
     }
 }

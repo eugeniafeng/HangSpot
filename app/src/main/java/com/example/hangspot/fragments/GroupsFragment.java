@@ -16,10 +16,16 @@ import com.example.hangspot.R;
 import com.example.hangspot.adapters.GroupsAdapter;
 import com.example.hangspot.databinding.FragmentGroupsBinding;
 import com.example.hangspot.models.Group;
+import com.example.hangspot.models.UserGroups;
+import com.example.hangspot.utils.Constants;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class GroupsFragment extends Fragment {
@@ -51,21 +57,15 @@ public class GroupsFragment extends Fragment {
     }
 
     private void queryGroups() {
-        // TODO: fix query to only get Groups user is in
-        ParseQuery<Group> query = ParseQuery.getQuery(Group.class);
-        // include all nested Parse objects
-        query.include("*");
-        query.include("users");
-        query.setLimit(50);
-        query.addDescendingOrder("updatedAt");
-
-        query.findInBackground((groups, e) -> {
-            if (e == null) {
-                allGroups.addAll(groups);
-                adapter.notifyDataSetChanged();
-            } else {
-                Log.d(TAG, e.getMessage());
-            }
+        ParseQuery<UserGroups> query = ParseQuery.getQuery("UserGroups");
+        query.getInBackground(((UserGroups)ParseUser
+                .getCurrentUser()
+                .get(Constants.KEY_USER_GROUPS))
+                .getObjectId(),
+                (object, e) -> {
+            allGroups.addAll(object.getGroups());
+            Collections.reverse(allGroups);
+            adapter.notifyDataSetChanged();
         });
     }
 }
