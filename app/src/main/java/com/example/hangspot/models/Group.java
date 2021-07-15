@@ -11,6 +11,7 @@ import org.json.JSONObject;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
@@ -20,6 +21,7 @@ public class Group extends ParseObject {
 
     private static final String KEY_NAME = "name";
     private static final String KEY_USERS = "users";
+    private static final String KEY_USERS_STRING = "usersString";
     private static final String KEY_LOCATION_CANDIDATES = "locationCandidates";
     private static final String KEY_RANKINGS = "rankings";
     private static final String KEY_STATUS = "status";
@@ -39,22 +41,17 @@ public class Group extends ParseObject {
         return getList(KEY_USERS);
     }
 
-    public String getUsersString() {
-        String userList = "";
-        for (ParseUser user : getUsers()) {
-            // TODO: fetching each user's username blocks up thread, figure out how to get it in groups query
-            try {
-                userList += user.fetchIfNeeded().getUsername() + ", ";
-            } catch (ParseException e) {
-                Log.e("Group", e.toString());
-                e.printStackTrace();
-            }
-        }
-        return userList.substring(0, userList.length()-2);
-    }
-
     public void setUsers(List<ParseUser> users) {
         put(KEY_USERS, users);
+    }
+
+    public String getUsersString() {
+        String userList = "";
+        for (Iterator<String> it = getUserStatuses().keys(); it.hasNext();) {
+            String key = it.next();
+            userList += key + ", ";
+        }
+        return userList.substring(0, userList.length()-2);
     }
 
     public List<Location> getLocationCandidates() {
