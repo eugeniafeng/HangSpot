@@ -9,10 +9,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.hangspot.databinding.ItemGroupBinding;
 import com.example.hangspot.models.Group;
-import com.parse.GetCallback;
-import com.parse.ParseException;
 import com.parse.ParseQuery;
 
+import java.util.Collections;
 import java.util.List;
 
 public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder> {
@@ -50,8 +49,9 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder
         notifyDataSetChanged();
     }
 
-    public void addAll(List<Group> list) {
+    public void addAllReverse(List<Group> list) {
         groups.addAll(list);
+        Collections.reverse(groups);
         notifyDataSetChanged();
     }
 

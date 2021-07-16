@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -130,11 +131,12 @@ public class ComposeFragment extends Fragment {
 
     // First switch to groups fragment so back button will lead to correct place
     public void showDetail(Group group) {
-        getActivity()
-                .getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.flContainer, new GroupsFragment())
-                .commit();
+        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+        GroupsFragment groupsFragment = new GroupsFragment();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(Constants.KEY_GROUP, group);
+        groupsFragment.setArguments(bundle);
+        ft.replace(R.id.flContainer, groupsFragment).commit();
         ((SmoothBottomBar)getActivity().findViewById(R.id.bottomBar)).setItemActiveIndex(0);
         Intent intent = new Intent(getContext(), GroupDetailActivity.class);
         intent.putExtra(Constants.KEY_GROUP, Parcels.wrap(group));
