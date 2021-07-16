@@ -2,6 +2,8 @@ package com.example.hangspot.models;
 
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+
 import com.parse.ParseClassName;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -125,6 +127,14 @@ public class Group extends ParseObject {
 
     public void setFinalLocation(Location location) {
         put(KEY_FINAL_LOCATION, location);
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        if (obj instanceof Group && ((Group)obj).getObjectId() != null) {
+            return ((Group)obj).getObjectId().equals(this.getObjectId());
+        }
+        return false;
     }
 
     public static String calculateTimeAgo(Date createdAt) {

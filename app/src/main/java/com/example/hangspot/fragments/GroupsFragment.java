@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -57,7 +58,10 @@ public class GroupsFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         binding.rvGroups.setAdapter(adapter);
         binding.rvGroups.setLayoutManager(new LinearLayoutManager(getContext()));
-        queryGroups();
+
+        binding.swipeContainer.setOnRefreshListener(() -> queryGroups(true));
+
+        queryGroups(false);
 
 //        ParseLiveQueryClient parseLiveQueryClient = null;
 //        try {
@@ -82,7 +86,7 @@ public class GroupsFragment extends Fragment {
 //        });
     }
 
-    private void queryGroups() {
+    private void queryGroups(boolean swipe) {
         adapter.clear();
         ParseQuery<UserGroups> query = ParseQuery.getQuery("UserGroups");
         query.getInBackground(((UserGroups)ParseUser
@@ -92,9 +96,12 @@ public class GroupsFragment extends Fragment {
                 (object, e) -> {
             adapter.addAllReverse(object.getGroups());
             Bundle bundle = getArguments();
-            if (bundle != null && !allGroups.contains((Group)bundle.getParcelable(Constants.KEY_GROUP))) {
+            if (bundle != null && !allGroups.contains(bundle.getParcelable(Constants.KEY_GROUP))) {
                 allGroups.add(0, bundle.getParcelable(Constants.KEY_GROUP));
                 adapter.notifyItemInserted(0);
+            }
+            if (swipe) {
+                binding.swipeContainer.setRefreshing(false);
             }
         });
     }
