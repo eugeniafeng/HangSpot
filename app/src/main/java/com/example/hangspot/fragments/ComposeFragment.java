@@ -19,10 +19,12 @@ import com.example.hangspot.activities.GroupDetailActivity;
 import com.example.hangspot.adapters.UserAdapter;
 import com.example.hangspot.databinding.FragmentComposeBinding;
 import com.example.hangspot.models.Group;
+import com.example.hangspot.models.Location;
 import com.example.hangspot.models.UserGroups;
 import com.example.hangspot.utils.Constants;
 import com.google.android.material.snackbar.Snackbar;
 import com.parse.ParseACL;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.tokenautocomplete.CharacterTokenizer;
@@ -88,13 +90,14 @@ public class ComposeFragment extends Fragment {
 
     private void createNewGroup(List<ParseUser> selectedUsers) throws JSONException {
         Group group = new Group();
-        JSONObject initialStatuses = new JSONObject();
+        JSONObject initialLocations = new JSONObject();
         for (ParseUser user : selectedUsers) {
-            initialStatuses.put(user.getUsername(), false);
+            initialLocations.put(user.getUsername(), new Location());
         }
         group.setName(binding.etName.getText().toString());
         group.setUsers(selectedUsers);
-        group.setUserStatuses(initialStatuses);
+        group.resetUserStatuses(selectedUsers);
+        group.setUserLocations(initialLocations);
         saveGroup(group, selectedUsers);
     }
 

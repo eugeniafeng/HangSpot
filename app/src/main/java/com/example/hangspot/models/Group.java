@@ -6,9 +6,11 @@ import androidx.annotation.Nullable;
 
 import com.parse.ParseClassName;
 import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Calendar;
@@ -26,6 +28,7 @@ public class Group extends ParseObject {
     private static final String KEY_LOCATION_CANDIDATES = "locationCandidates";
     private static final String KEY_RANKINGS = "rankings";
     private static final String KEY_STATUS = "status";
+    private static final String KEY_USER_LOCATIONS = "userLocations";
     private static final String KEY_USER_STATUSES = "userStatuses";
     private static final String KEY_CENTRAL_LOCATION = "centralLocation";
     private static final String KEY_FINAL_LOCATION = "finalLocation";
@@ -104,12 +107,28 @@ public class Group extends ParseObject {
         put(KEY_STATUS, status);
     }
 
+    public JSONObject getUserLocations() {
+        return getJSONObject(KEY_USER_LOCATIONS);
+    }
+
+    public void setUserLocations(JSONObject userLocations) {
+        put(KEY_USER_LOCATIONS, userLocations);
+    }
+
     public JSONObject getUserStatuses() {
         return getJSONObject(KEY_USER_STATUSES);
     }
 
     public void setUserStatuses(JSONObject userStatuses) {
         put(KEY_USER_STATUSES, userStatuses);
+    }
+
+    public void resetUserStatuses(List<ParseUser> users) throws JSONException {
+        JSONObject statuses = new JSONObject();
+        for (ParseUser user : users) {
+            statuses.put(user.getUsername(), false);
+        }
+        this.setUserStatuses(statuses);
     }
 
     // TODO: make sure this works

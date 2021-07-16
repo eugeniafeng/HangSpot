@@ -32,6 +32,10 @@ android {
     }
 }
 
+ext {
+    googlePlayVersion = "17.0.0"
+}
+
 dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
 
@@ -56,11 +60,15 @@ dependencies {
     // TokenAutoComplete Dependency
     compile "com.splitwise:tokenautocomplete:3.0.1@aar"
 
-    // Parceler dependencies
+    // Parceler Dependencies
     implementation 'org.parceler:parceler-api:1.1.12'
     annotationProcessor 'org.parceler:parceler:1.1.12'
 
-    // Swipe Refresh dependency
+    // Swipe Refresh Dependency
     implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.0.0'
+
+    // Google SDK Dependencies
+    implementation "com.google.android.gms:play-services-maps:$googlePlayVersion"
+    implementation "com.google.android.gms:play-services-location:$googlePlayVersion"
 
 }
