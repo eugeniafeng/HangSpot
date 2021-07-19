@@ -70,5 +70,6 @@ dependencies {
     // Google SDK Dependencies
     implementation "com.google.android.gms:play-services-maps:$googlePlayVersion"
     implementation "com.google.android.gms:play-services-location:$googlePlayVersion"
+    implementation 'com.google.android.libraries.places:places:2.4.0'
 
 }

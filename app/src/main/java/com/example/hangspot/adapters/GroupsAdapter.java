@@ -1,15 +1,21 @@
 package com.example.hangspot.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.hangspot.activities.GroupDetailActivity;
 import com.example.hangspot.databinding.ItemGroupBinding;
 import com.example.hangspot.models.Group;
+import com.example.hangspot.utils.Constants;
 import com.parse.ParseQuery;
+
+import org.parceler.Parcels;
 
 import java.util.Collections;
 import java.util.List;
@@ -55,14 +61,25 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder
         notifyDataSetChanged();
     }
 
-    class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         ItemGroupBinding binding;
 
         public ViewHolder(@NonNull ItemGroupBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
+            binding.getRoot().setOnClickListener(this);
+        }
 
+        @Override
+        public void onClick(View v) {
+            int position = getAdapterPosition();
+            if (position != RecyclerView.NO_POSITION) {
+                Group group = groups.get(position);
+                Intent intent = new Intent(context, GroupDetailActivity.class);
+                intent.putExtra(Constants.KEY_GROUP, Parcels.wrap(group));
+                context.startActivity(intent);
+            }
         }
 
         public void bind(Group group) {
@@ -73,5 +90,6 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder
                 binding.tvStatus.setText(object.getStatusString());
             });
         }
+
     }
 }

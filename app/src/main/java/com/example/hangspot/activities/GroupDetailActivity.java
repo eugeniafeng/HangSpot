@@ -17,6 +17,9 @@ import com.example.hangspot.fragments.GroupsFragment;
 import com.example.hangspot.fragments.SettingsFragment;
 import com.example.hangspot.models.Group;
 import com.example.hangspot.utils.Constants;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
 
 import org.parceler.Parcels;
 
@@ -32,24 +35,33 @@ public class GroupDetailActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         final FragmentManager fragmentManager = getSupportFragmentManager();
-        Fragment fragment;
 
         group = Parcels.unwrap(getIntent().getParcelableExtra(Constants.KEY_GROUP));
-        switch(group.getStatus()) {
-            case 0:
-                fragment = new DetailsEnterLocationsFragment();
-                break;
-            case 1:
-                fragment = new DetailsCandidatesFragment();
-                break;
-            case 2:
-                fragment = new DetailsVotingFragment();
-                break;
-            case 3:
-            default:
-                fragment = new DetailsCompleteFragment();
-                break;
-        }
-        fragmentManager.beginTransaction().replace(binding.flContainer.getId(), fragment).commit();
+        group.fetchIfNeededInBackground(new GetCallback<Group>() {
+            @Override
+            public void done(Group object, ParseException e) {
+                if (e == null) {
+                    Fragment fragment;
+                    switch (object.getStatus()) {
+                        case 0:
+                            fragment = new DetailsEnterLocationsFragment(group);
+                            break;
+                        case 1:
+                            fragment = new DetailsCandidatesFragment();
+                            break;
+                        case 2:
+                            fragment = new DetailsVotingFragment();
+                            break;
+                        case 3:
+                        default:
+                            fragment = new DetailsCompleteFragment();
+                            break;
+                    }
+                    fragmentManager.beginTransaction().replace(binding.flContainer.getId(), fragment).commit();
+                } else {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 }

@@ -9,15 +9,13 @@ import com.parse.ParseUser;
 public class Location extends ParseObject {
 
     private static final String KEY_COORDINATES = "coordinates";
+    private static final String KEY_TYPE = "type";
     private static final String KEY_NAME = "name";
     private static final String KEY_DESCRIPTION = "description";
     private static final String KEY_ADDRESS = "address";
-    private static final String KEY_CITY = "city";
-    private static final String KEY_STATE = "state";
-    private static final String KEY_POSTAL_CODE = "postalCode";
-    private static final String KEY_COUNTRY = "country";
     private static final String KEY_GROUP = "group";
     private static final String KEY_ADDED_BY = "addedBy";
+    private static final String KEY_PLACES_ID = "placesId";
 
     public ParseGeoPoint getCoordinates() {
         return getParseGeoPoint(KEY_COORDINATES);
@@ -25,6 +23,14 @@ public class Location extends ParseObject {
 
     public void setCoordinates(ParseGeoPoint coordinates) {
         put(KEY_COORDINATES, coordinates);
+    }
+
+    public String getType() {
+        return getString(KEY_TYPE);
+    }
+
+    public void setType(String type) {
+        put(KEY_TYPE, type);
     }
 
     public String getName() {
@@ -51,37 +57,6 @@ public class Location extends ParseObject {
         put(KEY_ADDRESS, address);
     }
 
-    public String getCity() {
-        return getString(KEY_CITY);
-    }
-
-    public void setCity(String city) {
-        put(KEY_CITY, city);
-    }
-
-    public String getState() {
-        return getString(KEY_STATE);
-    }
-
-    public void setState(String state) {
-        put(KEY_STATE, state);
-    }
-
-    public String getPostalCode() {
-        return getString(KEY_POSTAL_CODE);
-    }
-
-    public void setPostalCode(String postalCode) {
-        put(KEY_POSTAL_CODE, postalCode);
-    }
-    public String getCountry() {
-        return getString(KEY_COUNTRY);
-    }
-
-    public void setCountry(String country) {
-        put(KEY_COUNTRY, country);
-    }
-
     public Group getGroup() {
         return (Group) get(KEY_GROUP);
     }
@@ -96,5 +71,13 @@ public class Location extends ParseObject {
 
     public void setAddedBy(ParseUser user) {
         put(KEY_ADDED_BY, user);
+    }
+
+    public String getPlacesId() {
+        return getString(KEY_PLACES_ID);
+    }
+
+    public void setPlacesId(String placesId) {
+        put(KEY_PLACES_ID, placesId);
     }
 }
