@@ -62,28 +62,6 @@ public class GroupsFragment extends Fragment {
         binding.swipeContainer.setOnRefreshListener(() -> queryGroups(true));
 
         queryGroups(false);
-
-//        ParseLiveQueryClient parseLiveQueryClient = null;
-//        try {
-//            parseLiveQueryClient = ParseLiveQueryClient.Factory.getClient(new URI("wss://hangspot.b4a.app"));
-//        } catch (URISyntaxException e) {
-//            e.printStackTrace();
-//        }
-//        ParseQuery<Group> parseQuery = ParseQuery.getQuery(Group.class);
-////        parseQuery.whereEqualTo(
-////                "objectId",
-////                ((UserGroups)ParseUser.getCurrentUser().get(Constants.KEY_USER_GROUPS)).getObjectId());
-//        SubscriptionHandling<Group> subscriptionHandling = parseLiveQueryClient.subscribe(parseQuery);
-//        subscriptionHandling.handleEvent(SubscriptionHandling.Event.CREATE, (query, object) -> {
-//            adapter.clear();
-//            allGroups.add(0, object);
-//            getActivity().runOnUiThread(new Runnable() {
-//                @Override
-//                public void run() {
-//                    adapter.notifyDataSetChanged();
-//                }
-//            });
-//        });
     }
 
     private void queryGroups(boolean swipe) {
@@ -96,36 +74,9 @@ public class GroupsFragment extends Fragment {
                 (object, e) -> {
             adapter.addAllReverse(object.getGroups());
 
-            Bundle bundle = getArguments();
-            if (bundle != null && !allGroups.contains(bundle.getParcelable(Constants.KEY_GROUP))) {
-                allGroups.add(0, bundle.getParcelable(Constants.KEY_GROUP));
-                adapter.notifyItemInserted(0);
-            }
             if (swipe) {
                 binding.swipeContainer.setRefreshing(false);
             }
-
-//            for (Group group : object.getGroups()) {
-//                ParseLiveQueryClient parseLiveQueryClient = null;
-//                try {
-//                    parseLiveQueryClient = ParseLiveQueryClient.Factory.getClient(new URI("wss://hangspot.b4a.io"));
-//                } catch (URISyntaxException error) {
-//                    error.printStackTrace();
-//                }
-//                ParseQuery<Group> parseQuery = ParseQuery.getQuery(Group.class);
-//                parseQuery.whereEqualTo("objectId", group.getObjectId());
-//                SubscriptionHandling<Group> subscriptionHandling = parseLiveQueryClient.subscribe(parseQuery);
-//                subscriptionHandling.handleEvent(SubscriptionHandling.Event.UPDATE, (groupQuery, updatedGroup) -> {
-//                    allGroups.remove(group);
-//                    allGroups.add(0, updatedGroup);
-//                    getActivity().runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            adapter.notifyDataSetChanged();
-//                        }
-//                    });
-//                });
-//            }
         });
     }
 }

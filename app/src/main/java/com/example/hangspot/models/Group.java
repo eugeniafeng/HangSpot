@@ -28,7 +28,6 @@ public class Group extends ParseObject {
     private static final String KEY_LOCATION_CANDIDATES = "locationCandidates";
     private static final String KEY_RANKINGS = "rankings";
     private static final String KEY_STATUS = "status";
-    private static final String KEY_USER_LOCATIONS = "userLocations";
     private static final String KEY_USER_STATUSES = "userStatuses";
     private static final String KEY_CENTRAL_LOCATION = "centralLocation";
     private static final String KEY_FINAL_LOCATION = "finalLocation";
@@ -105,14 +104,6 @@ public class Group extends ParseObject {
 
     public void setStatus(int status) {
         put(KEY_STATUS, status);
-    }
-
-    public JSONObject getUserLocations() {
-        return getJSONObject(KEY_USER_LOCATIONS);
-    }
-
-    public void setUserLocations(JSONObject userLocations) {
-        put(KEY_USER_LOCATIONS, userLocations);
     }
 
     public JSONObject getUserStatuses() {

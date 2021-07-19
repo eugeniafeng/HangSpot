@@ -90,56 +90,62 @@ public class ComposeFragment extends Fragment {
 
     private void createNewGroup(List<ParseUser> selectedUsers) throws JSONException {
         Group group = new Group();
-        JSONObject initialLocations = new JSONObject();
-        for (ParseUser user : selectedUsers) {
-            initialLocations.put(user.getUsername(), new Location());
-        }
         group.setName(binding.etName.getText().toString());
         group.setUsers(selectedUsers);
         group.resetUserStatuses(selectedUsers);
-        group.setUserLocations(initialLocations);
         saveGroup(group, selectedUsers);
     }
 
     public void saveGroup(Group group, List<ParseUser> selectedUsers) {
-        for (ParseUser user : selectedUsers) {
-            ParseQuery<UserGroups> query = ParseQuery.getQuery("UserGroups");
-            query.getInBackground(
-                    ((UserGroups)user.get(Constants.KEY_USER_GROUPS)).getObjectId(),
-                    (object, e) -> {
-                object.addGroup(group);
-                object.saveInBackground(error -> {
-                    if (error != null) {
-                        Log.e(TAG, "Error while saving userGroup for " + user.getUsername(), error);
-                        Snackbar.make(binding.getRoot(), "Error while saving!", Snackbar.LENGTH_SHORT)
-                                .setAction("Retry", v -> saveGroup(group, selectedUsers)).show();
-                    } else {
-                        Log.i(TAG, "userGroups save was successful!");
-                    }
-                });
-            });
-        }
-
-        group.saveInBackground(e -> {
-            if (e != null) {
-                Log.e(TAG, "Error while saving group", e);
+        group.saveInBackground(inner_error -> {
+            if (inner_error != null) {
+                Log.e(TAG, "Error while saving group", inner_error);
                 Snackbar.make(binding.getRoot(), "Error while saving!", Snackbar.LENGTH_SHORT)
                         .setAction("Retry", v -> saveGroup(group, selectedUsers)).show();
             } else {
                 Log.i(TAG, "Group save was successful!");
-                showDetail(group);
+                for (ParseUser user : selectedUsers) {
+                    ParseQuery<UserGroups> query = ParseQuery.getQuery("UserGroups");
+                    // get the user's usergroups
+                    query.getInBackground(((UserGroups)user.get(Constants.KEY_USER_GROUPS)).getObjectId(),
+                            (object, e) -> {
+                        if (e == null) {
+                            // edit and save the usergroup
+                            object.addGroup(group);
+                            object.saveInBackground(error -> {
+                                if (error != null) {
+                                    Log.e(TAG,
+                                            "Error while saving userGroup for "
+                                                    + user.getUsername(),
+                                            error);
+                                    Snackbar.make(binding.getRoot(),
+                                            "Error while saving!",
+                                            Snackbar.LENGTH_SHORT)
+                                            .setAction("Retry",
+                                                    v -> saveGroup(group, selectedUsers)).show();
+                                } else {
+                                    Log.i(TAG, "userGroups save was successful!");
+                                    if (user.equals(ParseUser.getCurrentUser())){
+                                        showDetail(group);
+                                    }
+                                }
+                            });
+                        } else {
+                            e.printStackTrace();
+                        }
+                    });
+                }
             }
         });
     }
 
     // First switch to groups fragment so back button will lead to correct place
     public void showDetail(Group group) {
-        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
-        GroupsFragment groupsFragment = new GroupsFragment();
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(Constants.KEY_GROUP, group);
-        groupsFragment.setArguments(bundle);
-        ft.replace(R.id.flContainer, groupsFragment).commit();
+        getActivity()
+                .getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flContainer, new GroupsFragment())
+                .commit();
         ((SmoothBottomBar)getActivity().findViewById(R.id.bottomBar)).setItemActiveIndex(0);
         Intent intent = new Intent(getContext(), GroupDetailActivity.class);
         intent.putExtra(Constants.KEY_GROUP, Parcels.wrap(group));
