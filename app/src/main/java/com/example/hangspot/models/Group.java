@@ -4,17 +4,23 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.example.hangspot.utils.Constants;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
+import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
@@ -61,7 +67,7 @@ public class Group extends ParseObject {
             userList += key + ", ";
         }
         if (userList.isEmpty()) {
-            return "";
+            return userList;
         }
         return userList.substring(0, userList.length()-2);
     }
@@ -122,8 +128,9 @@ public class Group extends ParseObject {
         }
         if (hasCompleted) {
             resetUserStatuses();
-            if (getStatus() < 3) {
-                setStatus(getStatus() + 1);
+            setStatus(getStatus() + 1);
+            if (getStatus() == 1) {
+                calculateCentralLocation();
             }
             saveInBackground(e -> {
                 if (e == null) {
@@ -161,23 +168,63 @@ public class Group extends ParseObject {
 
     public String getRemainingUsersString() throws JSONException {
         JSONObject statuses = getUserStatuses();
-        String remainingUsers = "Waiting on ";
+        String remainingUsers = "";
         for (Iterator<String> it = statuses.keys(); it.hasNext();) {
             String key = it.next();
             if (!statuses.getBoolean(key)) {
                 remainingUsers += key + ", ";
             }
         }
-        return remainingUsers.substring(0, remainingUsers.length()-2);
+        if (remainingUsers.isEmpty()) {
+            return remainingUsers;
+        }
+        return "Waiting on " + remainingUsers.substring(0, remainingUsers.length()-2);
     }
 
-    // TODO: make sure this works
     public Location getCentralLocation() {
-        return (Location) get(KEY_CENTRAL_LOCATION);
+        return (Location)get(KEY_CENTRAL_LOCATION);
     }
 
     public void setCentralLocation(Location location) {
         put(KEY_CENTRAL_LOCATION, location);
+    }
+
+    public void calculateCentralLocation() {
+        ParseQuery<Location> query = ParseQuery.getQuery("Location");
+        query.include("*");
+        query.whereEqualTo(Location.KEY_GROUP, this);
+        query.whereEqualTo(Location.KEY_TYPE, Constants.TYPE_HOME);
+        query.findInBackground((objects, e) -> {
+            if (e == null) {
+                LatLngBounds.Builder latLngBounds = LatLngBounds.builder();
+                for (Location location : objects) {
+                    latLngBounds.include(new LatLng(location.getCoordinates().getLatitude(),
+                            location.getCoordinates().getLongitude()));
+                }
+                LatLng centerCoords = latLngBounds.build().getCenter();
+                Location center = new Location();
+                center.setType(Constants.TYPE_CENTER);
+                center.setName(getName() + " Center Point");
+                center.setCoordinates(new ParseGeoPoint(centerCoords.latitude, centerCoords.longitude));
+                center.setGroup(Group.this);
+                center.saveInBackground(e1 -> {
+                    if (e1 == null) {
+                        setCentralLocation(center);
+                        saveInBackground(e2 -> {
+                            if (e2 == null) {
+                                Log.i("Group", "Successfully saved central location");
+                            } else {
+                                e2.printStackTrace();
+                            }
+                        });
+                    } else {
+                        e1.printStackTrace();
+                    }
+                });
+            } else {
+                e.printStackTrace();
+            }
+        });
     }
 
     public Location getFinalLocation(Location location) {
