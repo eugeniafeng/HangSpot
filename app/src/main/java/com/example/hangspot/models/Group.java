@@ -121,7 +121,7 @@ public class Group extends ParseObject {
             }
         }
         if (hasCompleted) {
-            resetUserStatuses(getUsers());
+            resetUserStatuses();
             if (getStatus() < 3) {
                 setStatus(getStatus() + 1);
             }
@@ -143,7 +143,15 @@ public class Group extends ParseObject {
         put(KEY_USER_STATUSES, userStatuses);
     }
 
-    public void resetUserStatuses(List<ParseUser> users) throws JSONException {
+    public void initializeUserStatuses(List<ParseUser> users) throws JSONException {
+        JSONObject statuses = new JSONObject();
+        for (ParseUser user : users) {
+            statuses.put(user.getUsername(), false);
+        }
+        this.setUserStatuses(statuses);
+    }
+
+    public void resetUserStatuses() throws JSONException {
         JSONObject statuses = getUserStatuses();
         for (Iterator<String> it = statuses.keys(); it.hasNext();) {
             String key = it.next();

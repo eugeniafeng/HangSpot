@@ -92,7 +92,7 @@ public class ComposeFragment extends Fragment {
         Group group = new Group();
         group.setName(binding.etName.getText().toString());
         group.setUsers(selectedUsers);
-        group.resetUserStatuses(selectedUsers);
+        group.initializeUserStatuses(selectedUsers);
         saveGroup(group, selectedUsers);
     }
 
