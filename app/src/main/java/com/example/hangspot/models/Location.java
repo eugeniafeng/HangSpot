@@ -9,12 +9,12 @@ import com.parse.ParseUser;
 public class Location extends ParseObject {
 
     private static final String KEY_COORDINATES = "coordinates";
-    private static final String KEY_TYPE = "type";
+    public static final String KEY_TYPE = "type";
     private static final String KEY_NAME = "name";
     private static final String KEY_DESCRIPTION = "description";
     private static final String KEY_ADDRESS = "address";
-    private static final String KEY_GROUP = "group";
-    private static final String KEY_ADDED_BY = "addedBy";
+    public static final String KEY_GROUP = "group";
+    public static final String KEY_ADDED_BY = "addedBy";
     private static final String KEY_PLACES_ID = "placesId";
 
     public ParseGeoPoint getCoordinates() {

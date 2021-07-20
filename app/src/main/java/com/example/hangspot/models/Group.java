@@ -4,11 +4,13 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.parse.GetCallback;
 import com.parse.ParseClassName;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -58,6 +60,9 @@ public class Group extends ParseObject {
             String key = it.next();
             userList += key + ", ";
         }
+        if (userList.isEmpty()) {
+            return "";
+        }
         return userList.substring(0, userList.length()-2);
     }
 
@@ -106,6 +111,30 @@ public class Group extends ParseObject {
         put(KEY_STATUS, status);
     }
 
+    public void checkStatus() throws JSONException {
+        boolean hasCompleted = true;
+        JSONObject userStatuses = getUserStatuses();
+        for (Iterator<String> it = userStatuses.keys(); it.hasNext();) {
+            String key = it.next();
+            if (!userStatuses.getBoolean(key)) {
+                hasCompleted = false;
+            }
+        }
+        if (hasCompleted) {
+            resetUserStatuses(getUsers());
+            if (getStatus() < 3) {
+                setStatus(getStatus() + 1);
+            }
+            saveInBackground(e -> {
+                if (e == null) {
+                    Log.i("Group", "Successfully updated status");
+                } else {
+                    e.printStackTrace();
+                }
+            });
+        }
+    }
+
     public JSONObject getUserStatuses() {
         return getJSONObject(KEY_USER_STATUSES);
     }
@@ -115,11 +144,23 @@ public class Group extends ParseObject {
     }
 
     public void resetUserStatuses(List<ParseUser> users) throws JSONException {
-        JSONObject statuses = new JSONObject();
-        for (ParseUser user : users) {
-            statuses.put(user.getUsername(), false);
+        JSONObject statuses = getUserStatuses();
+        for (Iterator<String> it = statuses.keys(); it.hasNext();) {
+            String key = it.next();
+            statuses.put(key, false);
         }
-        this.setUserStatuses(statuses);
+    }
+
+    public String getRemainingUsersString() throws JSONException {
+        JSONObject statuses = getUserStatuses();
+        String remainingUsers = "Waiting on ";
+        for (Iterator<String> it = statuses.keys(); it.hasNext();) {
+            String key = it.next();
+            if (!statuses.getBoolean(key)) {
+                remainingUsers += key + ", ";
+            }
+        }
+        return remainingUsers.substring(0, remainingUsers.length()-2);
     }
 
     // TODO: make sure this works

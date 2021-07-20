@@ -12,12 +12,13 @@ import android.view.ViewGroup;
 
 import com.example.hangspot.R;
 import com.example.hangspot.databinding.FragmentDetailsEnterLocationsBinding;
+import com.example.hangspot.databinding.FragmentDetailsVotingBinding;
 
 import org.jetbrains.annotations.NotNull;
 
 public class DetailsVotingFragment extends Fragment {
 
-    private FragmentDetailsEnterLocationsBinding binding;
+    private FragmentDetailsVotingBinding binding;
 
     public DetailsVotingFragment() {}
 
@@ -25,7 +26,7 @@ public class DetailsVotingFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        binding = FragmentDetailsEnterLocationsBinding.inflate(inflater, container, false);
+        binding = FragmentDetailsVotingBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 

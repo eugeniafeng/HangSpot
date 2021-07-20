@@ -10,11 +10,13 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.hangspot.R;
 import com.example.hangspot.databinding.FragmentDetailsEnterLocationsBinding;
 import com.example.hangspot.models.Group;
 import com.example.hangspot.models.Location;
+import com.example.hangspot.models.UserGroups;
 import com.example.hangspot.utils.Constants;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.model.LatLng;
@@ -24,19 +26,26 @@ import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Arrays;
+import java.util.List;
 
 public class DetailsEnterLocationsFragment extends Fragment {
 
     private static final String TAG = "DetailsEnterLocationsFragment";
     private FragmentDetailsEnterLocationsBinding binding;
+    private AutocompleteSupportFragment autocompleteFragment;
     private Group group;
     private Location location;
 
@@ -56,15 +65,45 @@ public class DetailsEnterLocationsFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull @NotNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         setUpPlacesAutocomplete();
+
+        try {
+            binding.tvWaiting.setText(group.getRemainingUsersString());
+        } catch (JSONException e) {
+            binding.tvWaiting.setVisibility(View.GONE);
+            e.printStackTrace();
+        }
+
+        binding.btnSubmit.setOnClickListener(v -> {
+            try {
+                saveLocation();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        boolean userStatus = false;
+        try {
+            userStatus = group.getUserStatuses().getBoolean(ParseUser.getCurrentUser().getUsername());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if (userStatus) {
+            disableViews();
+            findLocation();
+        }
     }
 
     public void setUpPlacesAutocomplete() {
         Places.initialize(getActivity().getApplicationContext(), getString(R.string.google_maps_api_key));
-        AutocompleteSupportFragment autocompleteFragment = (AutocompleteSupportFragment)
-                getChildFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+        autocompleteFragment = (AutocompleteSupportFragment) getChildFragmentManager()
+                .findFragmentById(R.id.autocomplete_fragment);
         autocompleteFragment.setPlaceFields(
                 Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG));
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
@@ -75,10 +114,10 @@ public class DetailsEnterLocationsFragment extends Fragment {
                         place.getLatLng().latitude, place.getLatLng().longitude));
                 location.setAddress(place.getAddress());
                 location.setName(place.getName());
+                location.setDescription(ParseUser.getCurrentUser().getUsername() + "'s location");
                 location.setGroup(group);
                 location.setAddedBy(ParseUser.getCurrentUser());
                 location.setPlacesId(place.getId());
-
                 Log.i(TAG, place.getName() + " " + place.getAddress());
             }
 
@@ -89,10 +128,57 @@ public class DetailsEnterLocationsFragment extends Fragment {
         });
     }
 
-    public void saveLocation() {
+    public void saveLocation() throws JSONException {
         location.saveInBackground(e -> {
             if (e == null) {
                 Log.i(TAG, "Location saved successfully");
+                Toast.makeText(getContext(), "Location saved successfully!", Toast.LENGTH_SHORT).show();
+                disableViews();
+            } else {
+                e.printStackTrace();
+            }
+        });
+        JSONObject userStatuses = group.getUserStatuses();
+        userStatuses.put(ParseUser.getCurrentUser().getUsername(), true);
+        group.setUserStatuses(userStatuses);
+        group.saveInBackground(e -> {
+            if (e == null) {
+                Log.i(TAG, "Group status saved successfully");
+                try {
+                    group.checkStatus();
+                    binding.tvWaiting.setText(group.getRemainingUsersString());
+                } catch (JSONException jsonException) {
+                    binding.tvWaiting.setVisibility(View.GONE);
+                    jsonException.printStackTrace();
+                }
+            } else {
+                e.printStackTrace();
+            }
+        });
+        // TODO: how to progress if status complete? next button? refresh?
+    }
+
+    public void disableViews() {
+        binding.btnSubmit.setEnabled(false);
+        binding.btnSubmit.setText(R.string.submitted);
+        autocompleteFragment.getView()
+                .findViewById(R.id.places_autocomplete_search_input).setEnabled(false);
+        autocompleteFragment.getView()
+                .findViewById(R.id.places_autocomplete_clear_button).setEnabled(false);
+        autocompleteFragment.getView()
+                .findViewById(R.id.places_autocomplete_search_button).setEnabled(false);
+    }
+
+    public void findLocation() {
+        ParseQuery<Location> query = ParseQuery.getQuery("Location");
+        query.include("*");
+        query.whereEqualTo(Location.KEY_ADDED_BY, ParseUser.getCurrentUser());
+        query.whereEqualTo(Location.KEY_GROUP, group);
+        query.whereEqualTo(Location.KEY_TYPE, Constants.TYPE_HOME);
+        query.findInBackground((objects, e) -> {
+            if (e == null) {
+                location = objects.get(0);
+                autocompleteFragment.setText(location.getName());
             } else {
                 e.printStackTrace();
             }
