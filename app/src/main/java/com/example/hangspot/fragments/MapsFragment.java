@@ -6,9 +6,12 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
 import android.content.DialogInterface;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,8 +37,16 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.ParseException;
+import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
+
 import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+import java.util.List;
 
 public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickListener {
 
@@ -45,6 +56,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
     private FragmentMapsBinding binding;
     private SupportMapFragment mapFragment;
     private GoogleMap map;
+    private Geocoder geocoder;
 
     public MapsFragment (Group group) {
         this.group = group;
@@ -62,6 +74,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        geocoder = new Geocoder(getContext());
         mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(googleMap -> {
@@ -106,7 +119,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
                         .snippet(((EditText) alertDialog.findViewById(R.id.etDescription)).getText().toString())
                         .icon(defaultMarker));
                 dropPinEffect(marker);
-                // TODO: save location in database as candidate
+                saveLocationCandidate(marker);
             }
         });
 
@@ -135,6 +148,47 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
                 } else {
                     marker.showInfoWindow();
                 }
+            }
+        });
+    }
+
+    private void saveLocationCandidate(Marker marker) {
+        Location candidate = new Location();
+        candidate.setName(marker.getTitle());
+        candidate.setDescription(marker.getSnippet());
+        candidate.setCoordinates(new ParseGeoPoint(
+                marker.getPosition().latitude, marker.getPosition().longitude));
+        candidate.setType(Constants.TYPE_CANDIDATE);
+        candidate.setGroup(group);
+        candidate.setAddedBy(ParseUser.getCurrentUser());
+
+        List<Address> addresses = null;
+        try {
+            addresses = geocoder.getFromLocation(
+                    marker.getPosition().latitude, marker.getPosition().longitude, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (addresses != null && addresses.size() > 0) {
+            candidate.setAddress(addresses.get(0).getAddressLine(0));
+        }
+
+        candidate.saveInBackground(e -> {
+            if (e == null) {
+                Log.i(TAG, "Successfully saved location candidate");
+
+                List<Location> candidates = group.getLocationCandidates();
+                candidates.add(candidate);
+                group.setLocationCandidates(candidates);
+                group.saveInBackground(e1 -> {
+                    if (e1 == null) {
+                        Log.i(TAG, "Successfully saved location candidate in group");
+                    } else {
+                        e1.printStackTrace();
+                    }
+                });
+            } else {
+                e.printStackTrace();
             }
         });
     }
