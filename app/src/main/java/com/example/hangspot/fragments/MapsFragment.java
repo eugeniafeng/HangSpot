@@ -7,53 +7,40 @@ import androidx.fragment.app.Fragment;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
-import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.BounceInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.hangspot.R;
 import com.example.hangspot.adapters.CustomWindowAdapter;
 import com.example.hangspot.databinding.FragmentMapsBinding;
-import com.example.hangspot.databinding.ItemMapAlertBinding;
 import com.example.hangspot.models.Group;
 import com.example.hangspot.models.Location;
 import com.example.hangspot.utils.Constants;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.parse.FindCallback;
-import com.parse.GetCallback;
-import com.parse.ParseException;
-import com.parse.ParseGeoPoint;
-import com.parse.ParseObject;
 import com.parse.ParseQuery;
-import com.parse.ParseUser;
-
 import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
-
-import permissions.dispatcher.RuntimePermissions;
 
 public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickListener {
 
     private static final String TAG = "MapsFragment";
+    private static final Handler handler = new android.os.Handler();
     private Group group;
     private FragmentMapsBinding binding;
     private SupportMapFragment mapFragment;
@@ -129,18 +116,18 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
     }
 
     private void dropPinEffect(final Marker marker) {
-        final android.os.Handler handler = new android.os.Handler();
         final long start = SystemClock.uptimeMillis();
         final long duration = 1500;
-        final android.view.animation.Interpolator interpolator =
-                new BounceInterpolator();
+        final Interpolator interpolator = new BounceInterpolator();
 
         handler.post(new Runnable() {
             @Override
             public void run() {
                 long elapsed = SystemClock.uptimeMillis() - start;
+                // Calculate t for bounce based on elapsed time
                 float t = Math.max(
                         1 - interpolator.getInterpolation((float) elapsed / duration), 0);
+                // Set the anchor within the marker image
                 marker.setAnchor(0.5f, 1.0f + 10 * t);
 
                 if (t > 0.0) {
