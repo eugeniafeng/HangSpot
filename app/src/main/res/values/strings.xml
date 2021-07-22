@@ -13,4 +13,7 @@
     <string name="group_name">Group Name</string>
     <string name="enter_location">Please Enter Your Location:</string>
     <string name="view_map">View Map</string>
+    <string name="name">Name*</string>
+    <string name="description">Description</string>
+    <string name="enter_a_location_candidate">Enter a location candidate:</string>
 </resources>

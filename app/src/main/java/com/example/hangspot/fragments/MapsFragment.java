@@ -2,17 +2,25 @@ package com.example.hangspot.fragments;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.BounceInterpolator;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.hangspot.R;
+import com.example.hangspot.adapters.CustomWindowAdapter;
 import com.example.hangspot.databinding.FragmentMapsBinding;
+import com.example.hangspot.databinding.ItemMapAlertBinding;
 import com.example.hangspot.models.Group;
 import com.example.hangspot.models.Location;
 import com.google.android.gms.maps.CameraUpdate;
@@ -20,7 +28,13 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
@@ -30,7 +44,7 @@ import org.jetbrains.annotations.NotNull;
 
 import permissions.dispatcher.RuntimePermissions;
 
-public class MapsFragment extends Fragment {
+public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickListener {
 
     private static final String TAG = "MapsFragment";
     private Group group;
@@ -58,11 +72,13 @@ public class MapsFragment extends Fragment {
         if (mapFragment != null) {
             mapFragment.getMapAsync(googleMap -> {
                 map = googleMap;
+                map.setOnMapLongClickListener(this);
+                map.setInfoWindowAdapter(new CustomWindowAdapter(getLayoutInflater()));
                 group.fetchIfNeededInBackground((object, e) -> {
                     if (e == null) {
                         group.getCentralLocation().fetchIfNeededInBackground((object1, e1) -> {
                             if (e1 == null) {
-                                displayLocation();
+                                displayCentralLocation();
                             } else {
                                 e1.printStackTrace();
                             }
@@ -75,13 +91,79 @@ public class MapsFragment extends Fragment {
         }
     }
 
-    private void displayLocation() {
+    @Override
+    public void onMapLongClick(@NonNull @NotNull LatLng latLng) {
+        View messageView = LayoutInflater.from(getContext()).inflate(R.layout.item_map_alert, null);
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+        alertDialogBuilder.setView(messageView);
+
+        final AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", (dialog, which) -> {
+            BitmapDescriptor defaultMarker =
+                    BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
+            String name = ((EditText) alertDialog.findViewById(R.id.etName)).getText().toString();
+            if (name.isEmpty()) {
+                Toast.makeText(getContext(), "Please enter a name", Toast.LENGTH_SHORT).show();
+            } else {
+                Marker marker = map.addMarker(new MarkerOptions()
+                        .position(latLng)
+                        .title(name)
+                        .snippet(((EditText) alertDialog.findViewById(R.id.etDescription)).getText().toString())
+                        .icon(defaultMarker));
+                dropPinEffect(marker);
+                // TODO: save location in database as candidate
+            }
+        });
+
+        alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel",
+                (dialog, id) -> dialog.cancel());
+        alertDialog.show();
+    }
+
+    private void dropPinEffect(final Marker marker) {
+        final android.os.Handler handler = new android.os.Handler();
+        final long start = SystemClock.uptimeMillis();
+        final long duration = 1500;
+        final android.view.animation.Interpolator interpolator =
+                new BounceInterpolator();
+
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                long elapsed = SystemClock.uptimeMillis() - start;
+                float t = Math.max(
+                        1 - interpolator.getInterpolation((float) elapsed / duration), 0);
+                marker.setAnchor(0.5f, 1.0f + 10 * t);
+
+                if (t > 0.0) {
+                    handler.postDelayed(this, 15);
+                } else {
+                    marker.showInfoWindow();
+                }
+            }
+        });
+    }
+
+    private void displayCentralLocation() {
         Location centralLocation = group.getCentralLocation();
         if (group.getCentralLocation() != null) {
             LatLng latLng = new LatLng(centralLocation.getCoordinates().getLatitude(),
                     centralLocation.getCoordinates().getLongitude());
             CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 16);
             map.animateCamera(cameraUpdate);
+
+            BitmapDescriptor centerMarker =
+                    BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET);
+            map.addMarker(new MarkerOptions()
+                    .position(latLng)
+                    .title("Center Point")
+                    .snippet("The central point of all members of " + group.getName()
+                            + " with a 1 km radius around it.")
+                    .icon(centerMarker));
+
+            // TODO: Determine radius of circle to display
+            CircleOptions circleOptions = new CircleOptions().center(latLng).radius(1000);
+            map.addCircle(circleOptions);
         }
     }
 }
