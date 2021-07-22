@@ -23,6 +23,7 @@ import com.example.hangspot.databinding.FragmentMapsBinding;
 import com.example.hangspot.databinding.ItemMapAlertBinding;
 import com.example.hangspot.models.Group;
 import com.example.hangspot.models.Location;
+import com.example.hangspot.utils.Constants;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -35,12 +36,17 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 import permissions.dispatcher.RuntimePermissions;
 
@@ -79,6 +85,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
                         group.getCentralLocation().fetchIfNeededInBackground((object1, e1) -> {
                             if (e1 == null) {
                                 displayCentralLocation();
+                                displayHomeLocations();
                             } else {
                                 e1.printStackTrace();
                             }
@@ -165,5 +172,29 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
             CircleOptions circleOptions = new CircleOptions().center(latLng).radius(1000);
             map.addCircle(circleOptions);
         }
+    }
+
+    private void displayHomeLocations() {
+        ParseQuery<Location> query = ParseQuery.getQuery("Location");
+        query.include("*");
+        query.whereEqualTo(Location.KEY_GROUP, group);
+        query.whereEqualTo(Location.KEY_TYPE, Constants.TYPE_HOME);
+        query.findInBackground((objects, e) -> {
+            if (e == null) {
+                BitmapDescriptor homeMarker =
+                        BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE);
+                for (Location location : objects) {
+                    LatLng latLng = new LatLng(location.getCoordinates().getLatitude(),
+                            location.getCoordinates().getLongitude());
+                    map.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title(location.getDescription())
+                            .snippet(location.getAddress())
+                            .icon(homeMarker));
+                }
+            } else {
+                e.printStackTrace();
+            }
+        });
     }
 }
