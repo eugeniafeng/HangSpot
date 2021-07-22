@@ -12,14 +12,20 @@ import android.view.ViewGroup;
 
 import com.example.hangspot.R;
 import com.example.hangspot.databinding.FragmentDetailsCompleteBinding;
+import com.example.hangspot.models.Group;
 
 import org.jetbrains.annotations.NotNull;
 
 public class DetailsCompleteFragment extends Fragment {
 
     private FragmentDetailsCompleteBinding binding;
+    private Group group;
 
     public DetailsCompleteFragment() {}
+
+    public DetailsCompleteFragment(Group group) {
+        this.group = group;
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

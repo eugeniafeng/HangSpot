@@ -7,7 +7,7 @@
     tools:context=".activities.GroupDetailActivity">
 
     <FrameLayout
-        android:id="@+id/flContainer"
+        android:id="@+id/flDetailsContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
