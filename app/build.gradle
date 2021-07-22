@@ -34,6 +34,7 @@ android {
 
 ext {
     googlePlayVersion = "17.0.0"
+    permissionDispatcherVersion = "4.7.0"
 }
 
 dependencies {
@@ -72,4 +73,7 @@ dependencies {
     implementation "com.google.android.gms:play-services-location:$googlePlayVersion"
     implementation 'com.google.android.libraries.places:places:2.4.0'
 
+    // Permissions Dispatcher Dependencies
+    implementation "org.permissionsdispatcher:permissionsdispatcher:$permissionDispatcherVersion"
+    annotationProcessor "org.permissionsdispatcher:permissionsdispatcher-processor:$permissionDispatcherVersion"
 }
