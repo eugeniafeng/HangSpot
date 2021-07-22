@@ -34,6 +34,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.parse.FindCallback;
@@ -156,9 +157,6 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
         if (group.getCentralLocation() != null) {
             LatLng latLng = new LatLng(centralLocation.getCoordinates().getLatitude(),
                     centralLocation.getCoordinates().getLongitude());
-            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latLng, 16);
-            map.animateCamera(cameraUpdate);
-
             BitmapDescriptor centerMarker =
                     BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_VIOLET);
             map.addMarker(new MarkerOptions()
@@ -183,15 +181,20 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
             if (e == null) {
                 BitmapDescriptor homeMarker =
                         BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE);
+                LatLngBounds.Builder latLngBounds = LatLngBounds.builder();
                 for (Location location : objects) {
                     LatLng latLng = new LatLng(location.getCoordinates().getLatitude(),
                             location.getCoordinates().getLongitude());
+                    latLngBounds.include(latLng);
                     map.addMarker(new MarkerOptions()
                             .position(latLng)
                             .title(location.getDescription())
                             .snippet(location.getAddress())
                             .icon(homeMarker));
                 }
+                CameraUpdate cameraUpdate =
+                        CameraUpdateFactory.newLatLngBounds(latLngBounds.build(), 40);
+                map.animateCamera(cameraUpdate);
             } else {
                 e.printStackTrace();
             }
