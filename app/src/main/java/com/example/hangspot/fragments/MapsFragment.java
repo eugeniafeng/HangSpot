@@ -46,6 +46,7 @@ import com.parse.SaveCallback;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickListener {
@@ -86,7 +87,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
                         group.getCentralLocation().fetchIfNeededInBackground((object1, e1) -> {
                             if (e1 == null) {
                                 displayCentralLocation();
-                                displayHomeLocations();
+                                displayHomeAndCandidateLocations();
                             } else {
                                 e1.printStackTrace();
                             }
@@ -213,25 +214,44 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
         }
     }
 
-    private void displayHomeLocations() {
-        ParseQuery<Location> query = ParseQuery.getQuery("Location");
-        query.include("*");
-        query.whereEqualTo(Location.KEY_GROUP, group);
-        query.whereEqualTo(Location.KEY_TYPE, Constants.TYPE_HOME);
-        query.findInBackground((objects, e) -> {
+    private void displayHomeAndCandidateLocations() {
+        ParseQuery<Location> homeQuery = ParseQuery.getQuery("Location");
+        homeQuery.whereEqualTo(Location.KEY_GROUP, group);
+        homeQuery.whereEqualTo(Location.KEY_TYPE, Constants.TYPE_HOME);
+
+        ParseQuery<Location> candidateQuery = ParseQuery.getQuery("Location");
+        candidateQuery.whereEqualTo(Location.KEY_GROUP, group);
+        candidateQuery.whereEqualTo(Location.KEY_TYPE, Constants.TYPE_CANDIDATE);
+
+        List<ParseQuery<Location>> queries = new ArrayList<>();
+        queries.add(homeQuery);
+        queries.add(candidateQuery);
+
+        ParseQuery<Location> mainQuery = ParseQuery.or(queries);
+        mainQuery.findInBackground((objects, e) -> {
             if (e == null) {
                 BitmapDescriptor homeMarker =
                         BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE);
+                BitmapDescriptor candidateMarker =
+                        BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
                 LatLngBounds.Builder latLngBounds = LatLngBounds.builder();
                 for (Location location : objects) {
                     LatLng latLng = new LatLng(location.getCoordinates().getLatitude(),
                             location.getCoordinates().getLongitude());
                     latLngBounds.include(latLng);
-                    map.addMarker(new MarkerOptions()
-                            .position(latLng)
-                            .title(location.getDescription())
-                            .snippet(location.getAddress())
-                            .icon(homeMarker));
+                    if (Constants.TYPE_HOME.equals(location.getType())) {
+                        map.addMarker(new MarkerOptions()
+                                .position(latLng)
+                                .title(location.getDescription())
+                                .snippet(location.getAddress())
+                                .icon(homeMarker));
+                    } else {
+                        map.addMarker(new MarkerOptions()
+                                .position(latLng)
+                                .title(location.getName())
+                                .snippet(location.getAddress() + "\n" + location.getDescription())
+                                .icon(candidateMarker));
+                    }
                 }
                 CameraUpdate cameraUpdate =
                         CameraUpdateFactory.newLatLngBounds(latLngBounds.build(), 40);
