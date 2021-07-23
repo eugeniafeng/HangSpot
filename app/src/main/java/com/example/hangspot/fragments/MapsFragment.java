@@ -207,7 +207,8 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
             map.addMarker(new MarkerOptions()
                     .position(latLng)
                     .title("Center Point")
-                    .snippet("The central point of all members of " + group.getName()
+                    .snippet(centralLocation.getAddress() + "\n" +
+                            "The central point of all members of " + group.getName()
                             + " with a 1 km radius around it.")
                     .icon(centerMarker));
 

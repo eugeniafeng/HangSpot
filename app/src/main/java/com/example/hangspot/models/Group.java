@@ -1,5 +1,8 @@
 package com.example.hangspot.models;
 
+import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
@@ -20,6 +23,7 @@ import com.parse.SaveCallback;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -117,7 +121,7 @@ public class Group extends ParseObject {
         put(KEY_STATUS, status);
     }
 
-    public void checkStatus() throws JSONException {
+    public void checkStatus(Context context) throws JSONException {
         boolean hasCompleted = true;
         JSONObject userStatuses = getUserStatuses();
         for (Iterator<String> it = userStatuses.keys(); it.hasNext();) {
@@ -130,7 +134,7 @@ public class Group extends ParseObject {
             resetUserStatuses();
             setStatus(getStatus() + 1);
             if (getStatus() == 1) {
-                calculateCentralLocation();
+                calculateCentralLocation(context);
             }
             saveInBackground(e -> {
                 if (e == null) {
@@ -189,7 +193,7 @@ public class Group extends ParseObject {
         put(KEY_CENTRAL_LOCATION, location);
     }
 
-    public void calculateCentralLocation() {
+    public void calculateCentralLocation(Context context) {
         ParseQuery<Location> query = ParseQuery.getQuery("Location");
         query.include("*");
         query.whereEqualTo(Location.KEY_GROUP, this);
@@ -207,6 +211,19 @@ public class Group extends ParseObject {
                 center.setName(getName() + " Center Point");
                 center.setCoordinates(new ParseGeoPoint(centerCoords.latitude, centerCoords.longitude));
                 center.setGroup(Group.this);
+
+                Geocoder geocoder = new Geocoder(context);
+                List<Address> addresses = null;
+                try {
+                    addresses = geocoder.getFromLocation(
+                            centerCoords.latitude, centerCoords.longitude, 1);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+                if (addresses != null && addresses.size() > 0) {
+                    center.setAddress(addresses.get(0).getAddressLine(0));
+                }
+
                 center.saveInBackground(e1 -> {
                     if (e1 == null) {
                         setCentralLocation(center);

@@ -145,7 +145,7 @@ public class DetailsEnterLocationsFragment extends Fragment {
             if (e == null) {
                 Log.i(TAG, "Group status saved successfully");
                 try {
-                    group.checkStatus();
+                    group.checkStatus(getContext());
                     binding.tvWaiting.setText(group.getRemainingUsersString());
                 } catch (JSONException jsonException) {
                     binding.tvWaiting.setVisibility(View.GONE);
