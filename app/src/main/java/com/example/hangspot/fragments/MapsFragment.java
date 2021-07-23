@@ -57,7 +57,6 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
     private FragmentMapsBinding binding;
     private SupportMapFragment mapFragment;
     private GoogleMap map;
-    private Geocoder geocoder;
 
     public MapsFragment (Group group) {
         this.group = group;
@@ -75,7 +74,6 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        geocoder = new Geocoder(getContext());
         mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(googleMap -> {
@@ -108,19 +106,34 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
 
         final AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", (dialog, which) -> {
-            BitmapDescriptor defaultMarker =
+            BitmapDescriptor candidateMarker =
                     BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
             String name = ((EditText) alertDialog.findViewById(R.id.etName)).getText().toString();
+            String description = ((EditText) alertDialog
+                    .findViewById(R.id.etDescription)).getText().toString();
             if (name.isEmpty()) {
                 Toast.makeText(getContext(), "Please enter a name", Toast.LENGTH_SHORT).show();
             } else {
+                Geocoder geocoder = new Geocoder(getContext());
+                List<Address> addresses = null;
+                String address = null;
+                try {
+                    addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                if (addresses != null && addresses.size() > 0) {
+                    address = addresses.get(0).getAddressLine(0);
+                }
+
+                String snippet = description.isEmpty() ? address : address + "\n" + description;
                 Marker marker = map.addMarker(new MarkerOptions()
                         .position(latLng)
                         .title(name)
-                        .snippet(((EditText) alertDialog.findViewById(R.id.etDescription)).getText().toString())
-                        .icon(defaultMarker));
+                        .snippet(snippet)
+                        .icon(candidateMarker));
                 dropPinEffect(marker);
-                saveLocationCandidate(marker);
+                saveLocationCandidate(marker, description, address);
             }
         });
 
@@ -153,26 +166,16 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
         });
     }
 
-    private void saveLocationCandidate(Marker marker) {
+    private void saveLocationCandidate(Marker marker, String description, String address) {
         Location candidate = new Location();
         candidate.setName(marker.getTitle());
-        candidate.setDescription(marker.getSnippet());
+        candidate.setDescription(description);
         candidate.setCoordinates(new ParseGeoPoint(
                 marker.getPosition().latitude, marker.getPosition().longitude));
         candidate.setType(Constants.TYPE_CANDIDATE);
         candidate.setGroup(group);
         candidate.setAddedBy(ParseUser.getCurrentUser());
-
-        List<Address> addresses = null;
-        try {
-            addresses = geocoder.getFromLocation(
-                    marker.getPosition().latitude, marker.getPosition().longitude, 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (addresses != null && addresses.size() > 0) {
-            candidate.setAddress(addresses.get(0).getAddressLine(0));
-        }
+        candidate.setAddress(address);
 
         candidate.saveInBackground(e -> {
             if (e == null) {
@@ -246,10 +249,12 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
                                 .snippet(location.getAddress())
                                 .icon(homeMarker));
                     } else {
+                        String snippet = location.getDescription().isEmpty() ? location.getAddress()
+                                : location.getAddress() + "\n" + location.getDescription();
                         map.addMarker(new MarkerOptions()
                                 .position(latLng)
                                 .title(location.getName())
-                                .snippet(location.getAddress() + "\n" + location.getDescription())
+                                .snippet(snippet)
                                 .icon(candidateMarker));
                     }
                 }
