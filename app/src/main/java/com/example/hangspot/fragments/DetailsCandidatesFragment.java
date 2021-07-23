@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.hangspot.R;
 import com.example.hangspot.adapters.CandidatesAdapter;
@@ -66,7 +67,7 @@ public class DetailsCandidatesFragment extends Fragment {
         binding.swipeContainer.setOnRefreshListener(this::queryCandidates);
 
         try {
-            String waiting = group.getRemainingUsersString() + " to enter a candidate.";
+            String waiting = group.getRemainingUsersString() + " to finish entering candidates.";
             binding.tvWaiting.setText(waiting);
             binding.tvWaiting.setVisibility(View.VISIBLE);
         } catch (JSONException e) {
@@ -81,13 +82,18 @@ public class DetailsCandidatesFragment extends Fragment {
                 .addToBackStack("DetailsCandidatesFragment")
                 .commit());
 
-        binding.btnDone.setOnClickListener(v -> {
-            try {
-                updateUserStatuses();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        });
+        binding.btnDone.setOnClickListener(v -> updateUserStatuses());
+
+        boolean userStatus = false;
+        try {
+            userStatus = group.getUserStatuses().getBoolean(ParseUser.getCurrentUser().getUsername());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if (userStatus) {
+            binding.btnDone.setEnabled(false);
+            binding.btnAdd.setEnabled(false);
+        }
     }
 
     private void queryCandidates() {
@@ -103,33 +109,51 @@ public class DetailsCandidatesFragment extends Fragment {
         });
     }
 
-    private void updateUserStatuses() throws JSONException {
-        JSONObject userStatuses = group.getUserStatuses();
-        userStatuses.put(ParseUser.getCurrentUser().getUsername(), true);
-        group.setUserStatuses(userStatuses);
-        group.saveInBackground(e -> {
-            if (e == null) {
-                Log.i(TAG, "Group status saved successfully");
-                binding.btnDone.setEnabled(false);
-                binding.btnAdd.setEnabled(false);
+    private void updateUserStatuses() {
+        ParseQuery<Location> query = ParseQuery.getQuery("Location");
+        query.whereEqualTo(Location.KEY_GROUP, group);
+        query.whereEqualTo(Location.KEY_TYPE, Constants.TYPE_CANDIDATE);
+        query.whereEqualTo(Location.KEY_ADDED_BY, ParseUser.getCurrentUser());
+        query.findInBackground((objects, e) -> {
+            if (objects != null && objects.size() > 0) {
                 try {
-                    String waiting = group.getRemainingUsersString() + " to enter a candidate.";
-                    binding.tvWaiting.setText(waiting);
-                    binding.tvWaiting.setVisibility(View.VISIBLE);
-                    if (group.getRemainingUsersString().isEmpty()) {
-                        getActivity()
-                                .getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.flDetailsContainer, new DetailsVotingFragment(group))
-                                .commit();
-                    }
-                    group.checkStatus(getContext());
+                    JSONObject userStatuses = group.getUserStatuses();
+                    userStatuses.put(ParseUser.getCurrentUser().getUsername(), true);
+                    group.setUserStatuses(userStatuses);
                 } catch (JSONException jsonException) {
-                    binding.tvWaiting.setVisibility(View.GONE);
                     jsonException.printStackTrace();
                 }
+                group.saveInBackground(e1 -> {
+                    if (e1 == null) {
+                        Log.i(TAG, "Group status saved successfully");
+                        binding.btnDone.setEnabled(false);
+                        binding.btnAdd.setEnabled(false);
+                        try {
+                            String waiting = group.getRemainingUsersString()
+                                    + " to finish entering candidates.";
+                            binding.tvWaiting.setText(waiting);
+                            binding.tvWaiting.setVisibility(View.VISIBLE);
+                            if (group.getRemainingUsersString().isEmpty()) {
+                                getActivity()
+                                        .getSupportFragmentManager()
+                                        .beginTransaction()
+                                        .replace(R.id.flDetailsContainer, new DetailsVotingFragment(group))
+                                        .commit();
+                            }
+                            group.checkStatus(getContext());
+                        } catch (JSONException jsonException) {
+                            binding.tvWaiting.setVisibility(View.GONE);
+                            jsonException.printStackTrace();
+                        }
+                    } else {
+                        e1.printStackTrace();
+                    }
+                });
             } else {
-                e.printStackTrace();
+                Toast.makeText(getContext(),
+                        "Please add at least one candidate",
+                        Toast.LENGTH_SHORT)
+                        .show();
             }
         });
     }
