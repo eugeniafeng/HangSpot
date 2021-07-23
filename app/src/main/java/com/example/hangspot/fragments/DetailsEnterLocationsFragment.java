@@ -132,7 +132,6 @@ public class DetailsEnterLocationsFragment extends Fragment {
         location.saveInBackground(e -> {
             if (e == null) {
                 Log.i(TAG, "Location saved successfully");
-                Toast.makeText(getContext(), "Location saved successfully!", Toast.LENGTH_SHORT).show();
                 disableViews();
             } else {
                 e.printStackTrace();
@@ -147,6 +146,13 @@ public class DetailsEnterLocationsFragment extends Fragment {
                 try {
                     group.checkStatus(getContext());
                     binding.tvWaiting.setText(group.getRemainingUsersString());
+                    if (group.getRemainingUsersString().isEmpty()) {
+                        getActivity()
+                                .getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.flDetailsContainer, new DetailsCandidatesFragment(group))
+                                .commit();
+                    }
                 } catch (JSONException jsonException) {
                     binding.tvWaiting.setVisibility(View.GONE);
                     jsonException.printStackTrace();
