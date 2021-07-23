@@ -61,11 +61,6 @@ public class AuthenticationActivity extends AppCompatActivity {
                 return;
             }
             goMainActivity();
-            Toast.makeText(
-                    AuthenticationActivity.this,
-                    "Success!",
-                    Toast.LENGTH_SHORT)
-                    .show();
         });
     }
 
@@ -102,11 +97,6 @@ public class AuthenticationActivity extends AppCompatActivity {
                         return;
                     }
                     goMainActivity();
-                    Toast.makeText(
-                            AuthenticationActivity.this,
-                            "Success!",
-                            Toast.LENGTH_SHORT)
-                            .show();
                     Log.i(TAG, "Current user: " + ParseUser.getCurrentUser().getUsername());
                 });
             }
