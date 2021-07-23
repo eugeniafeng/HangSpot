@@ -17,4 +17,6 @@
     <string name="description">Description</string>
     <string name="enter_a_location_candidate">Enter a location candidate:</string>
     <string name="location_candidates">Location Candidates</string>
+    <string name="add_candidates">Add Candidates</string>
+    <string name="done_adding">Done Adding</string>
 </resources>

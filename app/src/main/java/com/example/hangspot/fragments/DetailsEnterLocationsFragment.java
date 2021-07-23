@@ -70,7 +70,9 @@ public class DetailsEnterLocationsFragment extends Fragment {
         setUpPlacesAutocomplete();
 
         try {
-            binding.tvWaiting.setText(group.getRemainingUsersString());
+            String waiting = group.getRemainingUsersString() + " to enter their location.";
+            binding.tvWaiting.setText(waiting);
+            binding.tvWaiting.setVisibility(View.VISIBLE);
         } catch (JSONException e) {
             binding.tvWaiting.setVisibility(View.GONE);
             e.printStackTrace();
@@ -144,8 +146,9 @@ public class DetailsEnterLocationsFragment extends Fragment {
             if (e == null) {
                 Log.i(TAG, "Group status saved successfully");
                 try {
-                    group.checkStatus(getContext());
-                    binding.tvWaiting.setText(group.getRemainingUsersString());
+                    String waiting = group.getRemainingUsersString() + " to enter their location.";
+                    binding.tvWaiting.setText(waiting);
+                    binding.tvWaiting.setVisibility(View.VISIBLE);
                     if (group.getRemainingUsersString().isEmpty()) {
                         getActivity()
                                 .getSupportFragmentManager()
@@ -153,6 +156,7 @@ public class DetailsEnterLocationsFragment extends Fragment {
                                 .replace(R.id.flDetailsContainer, new DetailsCandidatesFragment(group))
                                 .commit();
                     }
+                    group.checkStatus(getContext());
                 } catch (JSONException jsonException) {
                     binding.tvWaiting.setVisibility(View.GONE);
                     jsonException.printStackTrace();

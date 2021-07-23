@@ -30,7 +30,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
         android:fontFamily="casual"
@@ -42,8 +41,9 @@
         android:layout_height="wrap_content"
         android:layout_above="@id/btnSubmit"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="5dp"
+        android:padding="10dp"
         android:fontFamily="casual"
+        android:gravity="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         tools:text="Waiting on user" />
 

@@ -168,6 +168,7 @@ public class Group extends ParseObject {
             String key = it.next();
             statuses.put(key, false);
         }
+        this.setUserStatuses(statuses);
     }
 
     public String getRemainingUsersString() throws JSONException {
