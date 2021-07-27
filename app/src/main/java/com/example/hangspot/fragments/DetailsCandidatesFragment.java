@@ -34,7 +34,7 @@ import java.util.List;
 
 public class DetailsCandidatesFragment extends Fragment {
 
-    private static final String TAG = "DetailsCandidatesFragment";
+    public static final String TAG = "DetailsCandidatesFragment";
     private FragmentDetailsCandidatesBinding binding;
     private Group group;
     private CandidatesAdapter adapter;
@@ -51,7 +51,7 @@ public class DetailsCandidatesFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentDetailsCandidatesBinding.inflate(inflater, container, false);
         allCandidates = new ArrayList<>();
-        adapter = new CandidatesAdapter(getContext(), allCandidates);
+        adapter = new CandidatesAdapter(getContext(), allCandidates, TAG);
         // Inflate the layout for this fragment
         return binding.getRoot();
     }

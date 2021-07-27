@@ -34,7 +34,7 @@ import java.util.List;
 
 public class DetailsVotingFragment extends Fragment {
 
-    private static final String TAG = "DetailsVotingFragment";
+    public static final String TAG = "DetailsVotingFragment";
     private FragmentDetailsVotingBinding binding;
     private Group group;
     private CandidatesAdapter adapter;
@@ -52,7 +52,7 @@ public class DetailsVotingFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentDetailsVotingBinding.inflate(inflater, container, false);
         allCandidates = new ArrayList<>();
-        adapter = new CandidatesAdapter(getContext(), allCandidates);
+        adapter = new CandidatesAdapter(getContext(), allCandidates, TAG);
         return binding.getRoot();
     }
 

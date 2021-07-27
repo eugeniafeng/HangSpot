@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -12,8 +13,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
+        android:layout_toStartOf="@id/ivReorder"
         android:fontFamily="casual"
-        android:textAlignment="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:textColor="@android:color/primary_text_light"
         tools:text="Location Name" />
@@ -24,6 +25,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tvLocationName"
         android:layout_alignStart="@+id/tvLocationName"
+        android:layout_toStartOf="@id/ivReorder"
         android:fontFamily="casual"
         tools:text="Address" />
 
@@ -33,6 +35,16 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tvAddress"
         android:layout_alignStart="@+id/tvLocationName"
+        android:layout_toStartOf="@id/ivReorder"
         android:fontFamily="casual"
         tools:text="Description" />
+
+    <ImageView
+        android:id="@+id/ivReorder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true"
+        app:srcCompat="@drawable/ic_baseline_reorder_24" />
+
 </RelativeLayout>

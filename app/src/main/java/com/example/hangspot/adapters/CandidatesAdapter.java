@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.hangspot.databinding.ItemCandidateBinding;
+import com.example.hangspot.fragments.DetailsVotingFragment;
 import com.example.hangspot.models.Location;
 
 import java.util.List;
@@ -17,10 +18,12 @@ public class CandidatesAdapter extends RecyclerView.Adapter<CandidatesAdapter.Vi
 
     private Context context;
     private List<Location> candidates;
+    private String fragmentName;
 
-    public CandidatesAdapter(Context context, List<Location> candidates) {
+    public CandidatesAdapter(Context context, List<Location> candidates, String fragmentName) {
         this.context = context;
         this.candidates = candidates;
+        this.fragmentName = fragmentName;
     }
 
     @NonNull
@@ -66,11 +69,10 @@ public class CandidatesAdapter extends RecyclerView.Adapter<CandidatesAdapter.Vi
             binding.tvLocationName.setText(candidate.getName());
             binding.tvAddress.setText(candidate.getAddress());
             binding.tvDescription.setText(candidate.getDescription());
-            if (candidate.getDescription().isEmpty()) {
-                binding.tvDescription.setVisibility(View.GONE);
-            } else {
-                binding.tvDescription.setVisibility(View.VISIBLE);
-            }
+            binding.tvDescription.setVisibility(
+                    candidate.getDescription().isEmpty() ? View.GONE : View.VISIBLE);
+            binding.ivReorder.setVisibility(
+                    fragmentName.equals(DetailsVotingFragment.TAG) ? View.VISIBLE : View.GONE);
         }
     }
 }
