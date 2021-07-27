@@ -5,22 +5,36 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.hangspot.R;
-import com.example.hangspot.databinding.FragmentDetailsEnterLocationsBinding;
+import com.example.hangspot.adapters.CandidatesAdapter;
 import com.example.hangspot.databinding.FragmentDetailsVotingBinding;
 import com.example.hangspot.models.Group;
+import com.example.hangspot.models.Location;
+import com.example.hangspot.utils.Constants;
+import com.parse.FindCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DetailsVotingFragment extends Fragment {
 
+    private static final String TAG = "DetailsVotingFragment";
     private FragmentDetailsVotingBinding binding;
     private Group group;
+    private CandidatesAdapter adapter;
+    private List<Location> allCandidates;
 
     public DetailsVotingFragment() {}
 
@@ -33,12 +47,28 @@ public class DetailsVotingFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentDetailsVotingBinding.inflate(inflater, container, false);
+        allCandidates = new ArrayList<>();
+        adapter = new CandidatesAdapter(getContext(), allCandidates);
         return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull @NotNull View view, @Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        
+        binding.rvVoting.setAdapter(adapter);
+        binding.rvVoting.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        queryCandidates();
+        
+        try {
+            String waiting = group.getRemainingUsersString() + " to finish voting.";
+            binding.tvWaiting.setText(waiting);
+            binding.tvWaiting.setVisibility(View.VISIBLE);
+        } catch (JSONException e) {
+            binding.tvWaiting.setVisibility(View.GONE);
+            e.printStackTrace();
+        }
 
         binding.btnMap.setOnClickListener(v -> getActivity()
                 .getSupportFragmentManager()
@@ -47,5 +77,31 @@ public class DetailsVotingFragment extends Fragment {
                 .replace(R.id.flDetailsContainer, new MapsFragment(group))
                 .addToBackStack("DetailsVotingFragment")
                 .commit());
+        
+        binding.btnSubmit.setOnClickListener(v -> saveRanking());
+        
+        boolean userStatus = false;
+        try {
+            userStatus = group.getUserStatuses().getBoolean(ParseUser.getCurrentUser().getUsername());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        if (userStatus) {
+            binding.btnMap.setEnabled(false);
+            binding.btnSubmit.setEnabled(false);
+        }
+    }
+
+    private void saveRanking() {
+
+    }
+
+    private void queryCandidates() {
+        ParseQuery<Location> query = ParseQuery.getQuery("Location");
+        query.include("*");
+        query.whereEqualTo(Location.KEY_GROUP, group);
+        query.whereEqualTo(Location.KEY_TYPE, Constants.TYPE_CANDIDATE);
+        query.addDescendingOrder("createdAt");
+        query.findInBackground((objects, e) -> adapter.addAll(objects));
     }
 }
