@@ -159,10 +159,11 @@ public class DetailsVotingFragment extends Fragment {
                 binding.btnSubmit.setEnabled(false);
                 binding.btnMap.setEnabled(false);
                 try {
-                    String waiting = group.getRemainingUsersString() + " to finish voting.";
-                    binding.tvWaiting.setText(waiting);
-                    binding.tvWaiting.setVisibility(View.VISIBLE);
-                    if (group.getRemainingUsersString().isEmpty()) {
+                    if (!group.getRemainingUsersString().isEmpty()) {
+                        String waiting = group.getRemainingUsersString() + " to finish voting.";
+                        binding.tvWaiting.setText(waiting);
+                        binding.tvWaiting.setVisibility(View.VISIBLE);
+                    } else {
                         getActivity()
                                 .getSupportFragmentManager()
                                 .beginTransaction()

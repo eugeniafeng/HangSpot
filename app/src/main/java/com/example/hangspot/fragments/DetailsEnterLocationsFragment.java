@@ -146,10 +146,11 @@ public class DetailsEnterLocationsFragment extends Fragment {
             if (e == null) {
                 Log.i(TAG, "Group status saved successfully");
                 try {
-                    String waiting = group.getRemainingUsersString() + " to enter their location.";
-                    binding.tvWaiting.setText(waiting);
-                    binding.tvWaiting.setVisibility(View.VISIBLE);
-                    if (group.getRemainingUsersString().isEmpty()) {
+                    if (!group.getRemainingUsersString().isEmpty()) {
+                        String waiting = group.getRemainingUsersString() + " to enter their location.";
+                        binding.tvWaiting.setText(waiting);
+                        binding.tvWaiting.setVisibility(View.VISIBLE);
+                    } else {
                         getActivity()
                                 .getSupportFragmentManager()
                                 .beginTransaction()

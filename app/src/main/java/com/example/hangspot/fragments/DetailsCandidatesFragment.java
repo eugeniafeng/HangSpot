@@ -129,11 +129,12 @@ public class DetailsCandidatesFragment extends Fragment {
                         binding.btnDone.setEnabled(false);
                         binding.btnAdd.setEnabled(false);
                         try {
-                            String waiting = group.getRemainingUsersString()
-                                    + " to finish entering candidates.";
-                            binding.tvWaiting.setText(waiting);
-                            binding.tvWaiting.setVisibility(View.VISIBLE);
-                            if (group.getRemainingUsersString().isEmpty()) {
+                            if (!group.getRemainingUsersString().isEmpty()) {
+                                String waiting = group.getRemainingUsersString()
+                                        + " to finish entering candidates.";
+                                binding.tvWaiting.setText(waiting);
+                                binding.tvWaiting.setVisibility(View.VISIBLE);
+                            } else {
                                 getActivity()
                                         .getSupportFragmentManager()
                                         .beginTransaction()

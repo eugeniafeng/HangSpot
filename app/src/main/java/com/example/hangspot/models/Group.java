@@ -7,6 +7,7 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.example.hangspot.fragments.MapsFragment;
 import com.example.hangspot.utils.Constants;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -243,19 +244,7 @@ public class Group extends ParseObject {
                 center.setName(getName() + " Center Point");
                 center.setCoordinates(new ParseGeoPoint(centerCoords.latitude, centerCoords.longitude));
                 center.setGroup(Group.this);
-
-                Geocoder geocoder = new Geocoder(context);
-                List<Address> addresses = null;
-                try {
-                    addresses = geocoder.getFromLocation(
-                            centerCoords.latitude, centerCoords.longitude, 1);
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-                if (addresses != null && addresses.size() > 0) {
-                    center.setAddress(addresses.get(0).getAddressLine(0));
-                }
-
+                center.setAddress(MapsFragment.findAddress(centerCoords, context));
                 center.saveInBackground(e1 -> {
                     if (e1 == null) {
                         setCentralLocation(center);

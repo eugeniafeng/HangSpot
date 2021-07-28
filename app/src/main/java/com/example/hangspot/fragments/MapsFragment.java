@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.location.Address;
 import android.location.Geocoder;
@@ -117,18 +118,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
                 if (name.isEmpty()) {
                     Toast.makeText(getContext(), "Please enter a name", Toast.LENGTH_SHORT).show();
                 } else {
-                    Geocoder geocoder = new Geocoder(getContext());
-                    List<Address> addresses = null;
-                    String address = null;
-                    try {
-                        addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    if (addresses != null && addresses.size() > 0) {
-                        address = addresses.get(0).getAddressLine(0);
-                    }
-
+                    String address = findAddress(latLng, getContext());
                     String snippet = description.isEmpty() ? address : address + "\n" + description;
                     Marker marker = map.addMarker(new MarkerOptions()
                             .position(latLng)
@@ -144,6 +134,21 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
                     (dialog, id) -> dialog.cancel());
             alertDialog.show();
         }
+    }
+
+    public static String findAddress(LatLng latLng, Context context) {
+        Geocoder geocoder = new Geocoder(context);
+        List<Address> addresses = null;
+        String address = null;
+        try {
+            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (addresses != null && addresses.size() > 0) {
+            address = addresses.get(0).getAddressLine(0);
+        }
+        return address;
     }
 
     private void dropPinEffect(final Marker marker) {
