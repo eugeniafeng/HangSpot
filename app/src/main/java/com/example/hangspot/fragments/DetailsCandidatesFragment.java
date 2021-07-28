@@ -51,7 +51,7 @@ public class DetailsCandidatesFragment extends Fragment {
                              Bundle savedInstanceState) {
         binding = FragmentDetailsCandidatesBinding.inflate(inflater, container, false);
         allCandidates = new ArrayList<>();
-        adapter = new CandidatesAdapter(getContext(), allCandidates, TAG);
+        adapter = new CandidatesAdapter(getContext(), allCandidates, this);
         // Inflate the layout for this fragment
         return binding.getRoot();
     }

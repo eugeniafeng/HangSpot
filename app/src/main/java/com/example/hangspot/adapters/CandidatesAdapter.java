@@ -2,10 +2,12 @@ package com.example.hangspot.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.hangspot.databinding.ItemCandidateBinding;
@@ -18,12 +20,12 @@ public class CandidatesAdapter extends RecyclerView.Adapter<CandidatesAdapter.Vi
 
     private Context context;
     private List<Location> candidates;
-    private String fragmentName;
+    private Fragment fragment;
 
-    public CandidatesAdapter(Context context, List<Location> candidates, String fragmentName) {
+    public CandidatesAdapter(Context context, List<Location> candidates, Fragment fragment) {
         this.context = context;
         this.candidates = candidates;
-        this.fragmentName = fragmentName;
+        this.fragment = fragment;
     }
 
     @NonNull
@@ -71,8 +73,18 @@ public class CandidatesAdapter extends RecyclerView.Adapter<CandidatesAdapter.Vi
             binding.tvDescription.setText(candidate.getDescription());
             binding.tvDescription.setVisibility(
                     candidate.getDescription().isEmpty() ? View.GONE : View.VISIBLE);
-            binding.ivReorder.setVisibility(
-                    fragmentName.equals(DetailsVotingFragment.TAG) ? View.VISIBLE : View.GONE);
+            if (fragment instanceof DetailsVotingFragment) {
+                binding.ivReorder.setVisibility(View.VISIBLE);
+                binding.ivReorder.setOnTouchListener((v, event) -> {
+                    if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                        ((DetailsVotingFragment) fragment).startDragging(ViewHolder.this);
+                        return true;
+                    }
+                    return false;
+                });
+            } else {
+                binding.ivReorder.setVisibility(View.GONE);
+            }
         }
     }
 }

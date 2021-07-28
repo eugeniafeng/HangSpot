@@ -39,6 +39,39 @@ public class DetailsVotingFragment extends Fragment {
     private Group group;
     private CandidatesAdapter adapter;
     private List<Location> allCandidates;
+    private ItemTouchHelper itemTouchHelper;
+    private ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(
+            ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END,
+            0) {
+        @Override
+        public boolean onMove(@NonNull @NotNull RecyclerView recyclerView,
+                              @NonNull @NotNull RecyclerView.ViewHolder viewHolder,
+                              @NonNull @NotNull RecyclerView.ViewHolder target) {
+            int fromPosition = viewHolder.getAdapterPosition();
+            int toPosition = target.getAdapterPosition();
+            Collections.swap(allCandidates, fromPosition, toPosition);
+            recyclerView.getAdapter().notifyItemMoved(fromPosition, toPosition);
+            return true;
+        }
+
+        @Override
+        public void onSwiped(@NonNull @NotNull RecyclerView.ViewHolder viewHolder, int direction) {}
+
+        @Override
+        public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
+            super.onSelectedChanged(viewHolder, actionState);
+            if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+                viewHolder.itemView.setBackgroundColor(getResources().getColor(R.color.light_blue_gray));
+            }
+        }
+
+        @Override
+        public void clearView(@NonNull @NotNull RecyclerView recyclerView,
+                              @NonNull @NotNull RecyclerView.ViewHolder viewHolder) {
+            super.clearView(recyclerView, viewHolder);
+            viewHolder.itemView.setBackgroundColor(Color.WHITE);
+        }
+    };
 
     public DetailsVotingFragment() {}
 
@@ -52,7 +85,7 @@ public class DetailsVotingFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentDetailsVotingBinding.inflate(inflater, container, false);
         allCandidates = new ArrayList<>();
-        adapter = new CandidatesAdapter(getContext(), allCandidates, TAG);
+        adapter = new CandidatesAdapter(getContext(), allCandidates, this);
         return binding.getRoot();
     }
 
@@ -64,38 +97,7 @@ public class DetailsVotingFragment extends Fragment {
         binding.rvVoting.setLayoutManager(new LinearLayoutManager(getContext()));
         queryCandidates();
 
-        ItemTouchHelper.SimpleCallback simpleCallback = new ItemTouchHelper.SimpleCallback(
-                ItemTouchHelper.UP | ItemTouchHelper.DOWN | ItemTouchHelper.START | ItemTouchHelper.END,
-                0) {
-            @Override
-            public boolean onMove(@NonNull @NotNull RecyclerView recyclerView,
-                                  @NonNull @NotNull RecyclerView.ViewHolder viewHolder,
-                                  @NonNull @NotNull RecyclerView.ViewHolder target) {
-                int fromPosition = viewHolder.getAdapterPosition();
-                int toPosition = target.getAdapterPosition();
-                Collections.swap(allCandidates, fromPosition, toPosition);
-                recyclerView.getAdapter().notifyItemMoved(fromPosition, toPosition);
-                return true;
-            }
-
-            @Override
-            public void onSwiped(@NonNull @NotNull RecyclerView.ViewHolder viewHolder, int direction) {}
-
-            @Override
-            public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) {
-                super.onSelectedChanged(viewHolder, actionState);
-                if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
-                    viewHolder.itemView.setBackgroundColor(getResources().getColor(R.color.light_blue_gray));
-                }
-            }
-
-            @Override
-            public void clearView(@NonNull @NotNull RecyclerView recyclerView, @NonNull @NotNull RecyclerView.ViewHolder viewHolder) {
-                super.clearView(recyclerView, viewHolder);
-                viewHolder.itemView.setBackgroundColor(Color.WHITE);
-            }
-        };
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(simpleCallback);
+        itemTouchHelper = new ItemTouchHelper(simpleCallback);
         itemTouchHelper.attachToRecyclerView(binding.rvVoting);
         
         try {
@@ -140,5 +142,9 @@ public class DetailsVotingFragment extends Fragment {
         query.whereEqualTo(Location.KEY_TYPE, Constants.TYPE_CANDIDATE);
         query.addDescendingOrder("createdAt");
         query.findInBackground((objects, e) -> adapter.addAll(objects));
+    }
+
+    public void startDragging(RecyclerView.ViewHolder viewHolder) {
+        itemTouchHelper.startDrag(viewHolder);
     }
 }
