@@ -276,7 +276,7 @@ public class Group extends ParseObject {
         });
     }
 
-    public Location getFinalLocation(Location location) {
+    public Location getFinalLocation() {
         return (Location) get(KEY_FINAL_LOCATION);
     }
 
