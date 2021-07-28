@@ -242,6 +242,8 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
                         BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE);
                 BitmapDescriptor candidateMarker =
                         BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
+                BitmapDescriptor finalMarker =
+                        BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE);
                 LatLngBounds.Builder latLngBounds = LatLngBounds.builder();
                 for (Location location : objects) {
                     LatLng latLng = new LatLng(location.getCoordinates().getLatitude(),
@@ -256,15 +258,24 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
                     } else {
                         String snippet = location.getDescription().isEmpty() ? location.getAddress()
                                 : location.getAddress() + "\n" + location.getDescription();
-                        map.addMarker(new MarkerOptions()
-                                .position(latLng)
-                                .title(location.getName())
-                                .snippet(snippet)
-                                .icon(candidateMarker));
+                        if (previousFragment instanceof DetailsCompleteFragment &&
+                                location.getObjectId().equals(group.getFinalLocation().getObjectId())) {
+                            map.addMarker(new MarkerOptions()
+                                    .position(latLng)
+                                    .title("Final Location: " + location.getName())
+                                    .snippet(snippet)
+                                    .icon(finalMarker));
+                        } else {
+                            map.addMarker(new MarkerOptions()
+                                    .position(latLng)
+                                    .title(location.getName())
+                                    .snippet(snippet)
+                                    .icon(candidateMarker));
+                        }
                     }
                 }
                 CameraUpdate cameraUpdate =
-                        CameraUpdateFactory.newLatLngBounds(latLngBounds.build(), 40);
+                        CameraUpdateFactory.newLatLngBounds(latLngBounds.build(), 60);
                 map.animateCamera(cameraUpdate);
             } else {
                 e.printStackTrace();

@@ -67,4 +67,16 @@
             tools:text="Description" />
 
     </LinearLayout>
+
+    <Button
+        android:id="@+id/btnMap"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/view_map"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="casual"
+        android:backgroundTint="@color/button" />
+
 </RelativeLayout>

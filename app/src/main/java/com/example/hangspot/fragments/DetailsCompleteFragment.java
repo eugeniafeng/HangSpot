@@ -68,5 +68,12 @@ public class DetailsCompleteFragment extends Fragment {
                 e.printStackTrace();
             }
         });
+
+        binding.btnMap.setOnClickListener(v -> getActivity()
+                .getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.flDetailsContainer, new MapsFragment(group, this))
+                .addToBackStack("DetailsCompleteFragment")
+                .commit());
     }
 }
