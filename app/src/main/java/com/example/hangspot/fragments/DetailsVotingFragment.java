@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,9 +25,11 @@ import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -132,7 +135,50 @@ public class DetailsVotingFragment extends Fragment {
     }
 
     private void saveRanking() {
+        JSONObject rankings = group.getRankings();
+        for (int i = 0; i < allCandidates.size(); i++) {
+            try {
+                String objectId = allCandidates.get(i).getObjectId();
+                rankings.put(objectId, rankings.getInt(objectId) + i);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+        group.setRankings(rankings);
 
+        JSONObject userStatuses = group.getUserStatuses();
+        try {
+            userStatuses.put(ParseUser.getCurrentUser().getUsername(), true);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        group.setUserStatuses(userStatuses);
+
+        group.saveInBackground(e -> {
+            if (e == null) {
+                Log.i(TAG, "Group status saved successfully");
+                binding.btnSubmit.setEnabled(false);
+                binding.btnMap.setEnabled(false);
+                try {
+                    String waiting = group.getRemainingUsersString() + " to finish voting.";
+                    binding.tvWaiting.setText(waiting);
+                    binding.tvWaiting.setVisibility(View.VISIBLE);
+                    if (group.getRemainingUsersString().isEmpty()) {
+                        getActivity()
+                                .getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.flDetailsContainer, new DetailsCompleteFragment(group))
+                                .commit();
+                    }
+                    group.checkStatus(getContext());
+                } catch (JSONException jsonException) {
+                    binding.tvWaiting.setVisibility(View.GONE);
+                    jsonException.printStackTrace();
+                }
+            } else {
+                Log.e(TAG, "Error saving votes");
+            }
+        });
     }
 
     private void queryCandidates() {

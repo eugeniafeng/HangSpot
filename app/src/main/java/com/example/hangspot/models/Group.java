@@ -84,13 +84,20 @@ public class Group extends ParseObject {
         put(KEY_LOCATION_CANDIDATES, locationCandidates);
     }
 
-    // TODO: try getMap? instead of getJSONObject
     public JSONObject getRankings() {
         return getJSONObject(KEY_RANKINGS);
     }
 
     public void setRankings(JSONObject rankings) {
         put(KEY_RANKINGS, rankings);
+    }
+
+    public void initializeRankings() throws JSONException {
+        JSONObject rankings = new JSONObject();
+        for (Location candidate : getLocationCandidates()) {
+            rankings.put(candidate.getObjectId(), 0);
+        }
+        setRankings(rankings);
     }
 
     public int getStatus() {
@@ -135,6 +142,8 @@ public class Group extends ParseObject {
             setStatus(getStatus() + 1);
             if (getStatus() == 1) {
                 calculateCentralLocation(context);
+            } else if (getStatus() == 2) {
+                initializeRankings();
             }
             saveInBackground(e -> {
                 if (e == null) {
