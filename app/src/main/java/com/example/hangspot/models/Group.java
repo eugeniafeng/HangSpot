@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 @ParseClassName("Group")
@@ -144,14 +145,35 @@ public class Group extends ParseObject {
                 calculateCentralLocation(context);
             } else if (getStatus() == 2) {
                 initializeRankings();
+            } else if (getStatus() == 3) {
+                String objectId = findFinalLocation();
+                ParseQuery<Location> query = ParseQuery.getQuery("Location");
+                query.include("*");
+                query.getInBackground(objectId, (object, e) -> {
+                    if (e == null) {
+                        setFinalLocation(object);
+                        saveInBackground(e1 -> {
+                            if (e1 == null) {
+                                Log.i("Group", "Successfully updated status");
+                            } else {
+                                e1.printStackTrace();
+                            }
+                        });
+                    } else {
+                        e.printStackTrace();
+                    }
+                });
             }
-            saveInBackground(e -> {
-                if (e == null) {
-                    Log.i("Group", "Successfully updated status");
-                } else {
-                    e.printStackTrace();
-                }
-            });
+
+            if (getStatus() != 3) {
+                saveInBackground(e -> {
+                    if (e == null) {
+                        Log.i("Group", "Successfully updated status");
+                    } else {
+                        e.printStackTrace();
+                    }
+                });
+            }
         }
     }
 
@@ -260,6 +282,31 @@ public class Group extends ParseObject {
 
     public void setFinalLocation(Location location) {
         put(KEY_FINAL_LOCATION, location);
+    }
+
+    public String findFinalLocation() throws JSONException {
+        JSONObject rankings = getRankings();
+        List<String> minObjectIds = new ArrayList<>();
+        int min = rankings.getInt(rankings.names().getString(0));
+        for (int i = 0; i < rankings.names().length(); i++) {
+            String key = rankings.names().getString(i);
+            if (rankings.getInt(key) < min) {
+                min = rankings.getInt(key);
+                minObjectIds.clear();
+                minObjectIds.add(key);
+            } else if (rankings.getInt(key) == min) {
+                minObjectIds.add(key);
+            }
+        }
+
+        String finalObjectId;
+        if (minObjectIds.size() == 1) {
+            finalObjectId = minObjectIds.get(0);
+        } else {
+            Random random = new Random();
+            finalObjectId = minObjectIds.get(random.nextInt(minObjectIds.size()));
+        }
+        return finalObjectId;
     }
 
     @Override
