@@ -56,10 +56,12 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
     private Group group;
     private FragmentMapsBinding binding;
     private SupportMapFragment mapFragment;
+    private Fragment previousFragment;
     private GoogleMap map;
 
-    public MapsFragment (Group group) {
+    public MapsFragment (Group group, Fragment previousFragment) {
         this.group = group;
+        this.previousFragment = previousFragment;
     }
 
     @Nullable
@@ -100,46 +102,48 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
 
     @Override
     public void onMapLongClick(@NonNull @NotNull LatLng latLng) {
-        View messageView = LayoutInflater.from(getContext()).inflate(R.layout.item_map_alert, null);
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-        alertDialogBuilder.setView(messageView);
+        if (previousFragment instanceof DetailsCandidatesFragment) {
+            View messageView = LayoutInflater.from(getContext()).inflate(R.layout.item_map_alert, null);
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
+            alertDialogBuilder.setView(messageView);
 
-        final AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", (dialog, which) -> {
-            BitmapDescriptor candidateMarker =
-                    BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
-            String name = ((EditText) alertDialog.findViewById(R.id.etName)).getText().toString();
-            String description = ((EditText) alertDialog
-                    .findViewById(R.id.etDescription)).getText().toString();
-            if (name.isEmpty()) {
-                Toast.makeText(getContext(), "Please enter a name", Toast.LENGTH_SHORT).show();
-            } else {
-                Geocoder geocoder = new Geocoder(getContext());
-                List<Address> addresses = null;
-                String address = null;
-                try {
-                    addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-                } catch (IOException e) {
-                    e.printStackTrace();
+            final AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK", (dialog, which) -> {
+                BitmapDescriptor candidateMarker =
+                        BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN);
+                String name = ((EditText) alertDialog.findViewById(R.id.etName)).getText().toString();
+                String description = ((EditText) alertDialog
+                        .findViewById(R.id.etDescription)).getText().toString();
+                if (name.isEmpty()) {
+                    Toast.makeText(getContext(), "Please enter a name", Toast.LENGTH_SHORT).show();
+                } else {
+                    Geocoder geocoder = new Geocoder(getContext());
+                    List<Address> addresses = null;
+                    String address = null;
+                    try {
+                        addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    if (addresses != null && addresses.size() > 0) {
+                        address = addresses.get(0).getAddressLine(0);
+                    }
+
+                    String snippet = description.isEmpty() ? address : address + "\n" + description;
+                    Marker marker = map.addMarker(new MarkerOptions()
+                            .position(latLng)
+                            .title(name)
+                            .snippet(snippet)
+                            .icon(candidateMarker));
+                    dropPinEffect(marker);
+                    saveLocationCandidate(marker, description, address);
                 }
-                if (addresses != null && addresses.size() > 0) {
-                    address = addresses.get(0).getAddressLine(0);
-                }
+            });
 
-                String snippet = description.isEmpty() ? address : address + "\n" + description;
-                Marker marker = map.addMarker(new MarkerOptions()
-                        .position(latLng)
-                        .title(name)
-                        .snippet(snippet)
-                        .icon(candidateMarker));
-                dropPinEffect(marker);
-                saveLocationCandidate(marker, description, address);
-            }
-        });
-
-        alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel",
-                (dialog, id) -> dialog.cancel());
-        alertDialog.show();
+            alertDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel",
+                    (dialog, id) -> dialog.cancel());
+            alertDialog.show();
+        }
     }
 
     private void dropPinEffect(final Marker marker) {

@@ -78,7 +78,7 @@ public class DetailsCandidatesFragment extends Fragment {
         binding.btnAdd.setOnClickListener(v -> getActivity()
                 .getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.flDetailsContainer, new MapsFragment(group))
+                .replace(R.id.flDetailsContainer, new MapsFragment(group, this))
                 .addToBackStack("DetailsCandidatesFragment")
                 .commit());
 

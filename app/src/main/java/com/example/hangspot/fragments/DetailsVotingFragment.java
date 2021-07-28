@@ -115,8 +115,7 @@ public class DetailsVotingFragment extends Fragment {
         binding.btnMap.setOnClickListener(v -> getActivity()
                 .getSupportFragmentManager()
                 .beginTransaction()
-                // TODO: modify map for voting so it is not editable
-                .replace(R.id.flDetailsContainer, new MapsFragment(group))
+                .replace(R.id.flDetailsContainer, new MapsFragment(group, this))
                 .addToBackStack("DetailsVotingFragment")
                 .commit());
         
