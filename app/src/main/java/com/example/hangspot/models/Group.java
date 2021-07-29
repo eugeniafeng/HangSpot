@@ -49,6 +49,10 @@ public class Group extends ParseObject {
     private static final int MINUTE_MILLIS = 60 * SECOND_MILLIS;
     private static final int HOUR_MILLIS = 60 * MINUTE_MILLIS;
     private static final long DAY_MILLIS = 24 * HOUR_MILLIS;
+    private static final int STATUS_ENTER_LOCATIONS = 0;
+    private static final int STATUS_CANDIDATES = 1;
+    private static final int STATUS_VOTING = 2;
+    private static final int STATUS_COMPLETE = 3;
 
     public String getName() {
         return getString(KEY_NAME);
@@ -109,16 +113,16 @@ public class Group extends ParseObject {
     public String getStatusString() {
         String status;
         switch (getStatus()) {
-            case 0:
+            case STATUS_ENTER_LOCATIONS:
                 status = "Entering locations";
                 break;
-            case 1:
+            case STATUS_CANDIDATES:
                 status = "Selecting location candidates";
                 break;
-            case 2:
+            case STATUS_VOTING:
                 status = "Voting on locations";
                 break;
-            case 3:
+            case STATUS_COMPLETE:
             default:
                 status = "Complete";
                 break;
@@ -142,11 +146,11 @@ public class Group extends ParseObject {
         if (hasCompleted) {
             resetUserStatuses();
             setStatus(getStatus() + 1);
-            if (getStatus() == 1) {
+            if (getStatus() == STATUS_CANDIDATES) {
                 calculateCentralLocation(context);
-            } else if (getStatus() == 2) {
+            } else if (getStatus() == STATUS_VOTING) {
                 initializeRankings();
-            } else if (getStatus() == 3) {
+            } else if (getStatus() == STATUS_COMPLETE) {
                 String objectId = findFinalLocation();
                 ParseQuery<Location> query = ParseQuery.getQuery("Location");
                 query.include("*");
@@ -166,7 +170,7 @@ public class Group extends ParseObject {
                 });
             }
 
-            if (getStatus() != 3) {
+            if (getStatus() != STATUS_COMPLETE) {
                 saveInBackground(e -> {
                     if (e == null) {
                         Log.i("Group", "Successfully updated status");
