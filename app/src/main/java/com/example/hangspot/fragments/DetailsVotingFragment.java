@@ -19,6 +19,7 @@ import androidx.work.WorkRequest;
 
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -149,12 +150,15 @@ public class DetailsVotingFragment extends Fragment {
         if (userStatus) {
             binding.btnMap.setEnabled(false);
             binding.btnSubmit.setEnabled(false);
+            binding.ivOverlay.setVisibility(View.VISIBLE);
         }
     }
 
     private void saveRanking() {
         binding.btnSubmit.setEnabled(false);
         binding.btnMap.setEnabled(false);
+        binding.ivOverlay.setVisibility(View.VISIBLE);
+        binding.ivOverlay.setElevation(1);
 
         JSONObject rankings = group.getRankings();
         for (int i = 0; i < allCandidates.size(); i++) {
