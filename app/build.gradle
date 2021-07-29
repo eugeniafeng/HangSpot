@@ -76,4 +76,7 @@ dependencies {
     // Permissions Dispatcher Dependencies
     implementation "org.permissionsdispatcher:permissionsdispatcher:$permissionDispatcherVersion"
     annotationProcessor "org.permissionsdispatcher:permissionsdispatcher-processor:$permissionDispatcherVersion"
+
+    // Work Manager Dependency
+    implementation "androidx.work:work-runtime:2.5.0"
 }

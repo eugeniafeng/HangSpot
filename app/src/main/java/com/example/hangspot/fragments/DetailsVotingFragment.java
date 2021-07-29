@@ -10,6 +10,12 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.work.Constraints;
+import androidx.work.Data;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.WorkRequest;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +28,7 @@ import com.example.hangspot.databinding.FragmentDetailsVotingBinding;
 import com.example.hangspot.models.Group;
 import com.example.hangspot.models.Location;
 import com.example.hangspot.utils.Constants;
+import com.example.hangspot.utils.SaveVotesWorker;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
@@ -168,37 +175,42 @@ public class DetailsVotingFragment extends Fragment {
         }
         group.setUserStatuses(userStatuses);
 
+        try {
+            if (!group.getRemainingUsersString().isEmpty()) {
+                String waiting = group.getRemainingUsersString() + " to finish voting.";
+                binding.tvWaiting.setText(waiting);
+                binding.tvWaiting.setVisibility(View.VISIBLE);
+            } else {
+                getActivity()
+                        .getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.flDetailsContainer, new DetailsCompleteFragment(group))
+                        .commit();
+            }
+        } catch (JSONException jsonException) {
+            binding.tvWaiting.setVisibility(View.GONE);
+            jsonException.printStackTrace();
+        }
+
         group.saveInBackground(e -> {
             if (e == null) {
                 Log.i(TAG, "Group status saved successfully");
                 try {
-                    if (!group.getRemainingUsersString().isEmpty()) {
-                        String waiting = group.getRemainingUsersString() + " to finish voting.";
-                        binding.tvWaiting.setText(waiting);
-                        binding.tvWaiting.setVisibility(View.VISIBLE);
-                    } else {
-                        getActivity()
-                                .getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.flDetailsContainer, new DetailsCompleteFragment(group))
-                                .commit();
-                    }
                     group.checkStatus(getContext());
                 } catch (JSONException jsonException) {
-                    binding.tvWaiting.setVisibility(View.GONE);
                     jsonException.printStackTrace();
                 }
             } else {
                 Log.e(TAG, "Error saving votes", e);
                 try {
-                    FileOutputStream fos = getActivity().openFileOutput(
+                    FileOutputStream fos = getContext().openFileOutput(
                             "group.txt", Context.MODE_PRIVATE);
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
                     writer.write(group.getObjectId() + "\n" +
                             ParseUser.getCurrentUser().getUsername());
                     writer.close();
 
-                    fos = getActivity().openFileOutput("rankings.txt", Context.MODE_PRIVATE);
+                    fos = getContext().openFileOutput("rankings.txt", Context.MODE_PRIVATE);
                     ObjectOutputStream out = new ObjectOutputStream(fos);
                     List<String> individualRankings = new ArrayList<>();
                     for (Location candidate : allCandidates) {
@@ -210,6 +222,11 @@ public class DetailsVotingFragment extends Fragment {
                 } catch (IOException fileNotFoundException) {
                     fileNotFoundException.printStackTrace();
                 }
+                Constraints constraints = new Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED).build();
+                OneTimeWorkRequest saveVotesWorkRequest = new OneTimeWorkRequest
+                        .Builder(SaveVotesWorker.class).setConstraints(constraints).build();
+                WorkManager.getInstance().enqueue(saveVotesWorkRequest);
             }
         });
     }
@@ -221,21 +238,6 @@ public class DetailsVotingFragment extends Fragment {
         query.whereEqualTo(Location.KEY_TYPE, Constants.TYPE_CANDIDATE);
         query.addDescendingOrder("createdAt");
         query.findInBackground((objects, e) -> adapter.addAll(objects));
-    }
-
-    private void readStorage() throws IOException, ClassNotFoundException {
-        BufferedReader input = new BufferedReader(new InputStreamReader(
-                getActivity().openFileInput("group.txt")));
-        String line;
-        StringBuilder stringBuilder = new StringBuilder();
-        while ((line = input.readLine()) != null) {
-            stringBuilder.append(line).append("\n");
-        }
-        Log.i(TAG, stringBuilder.toString());
-
-        ObjectInputStream in = new ObjectInputStream(getActivity().openFileInput("rankings.txt"));
-        List<String> readRankings = (List<String>) in.readObject();
-        Log.i(TAG, readRankings.toString());
     }
 
     public void startDragging(RecyclerView.ViewHolder viewHolder) {
