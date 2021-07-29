@@ -1,5 +1,6 @@
 package com.example.hangspot.fragments;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 
@@ -31,6 +32,17 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -134,6 +146,9 @@ public class DetailsVotingFragment extends Fragment {
     }
 
     private void saveRanking() {
+        binding.btnSubmit.setEnabled(false);
+        binding.btnMap.setEnabled(false);
+
         JSONObject rankings = group.getRankings();
         for (int i = 0; i < allCandidates.size(); i++) {
             try {
@@ -156,8 +171,6 @@ public class DetailsVotingFragment extends Fragment {
         group.saveInBackground(e -> {
             if (e == null) {
                 Log.i(TAG, "Group status saved successfully");
-                binding.btnSubmit.setEnabled(false);
-                binding.btnMap.setEnabled(false);
                 try {
                     if (!group.getRemainingUsersString().isEmpty()) {
                         String waiting = group.getRemainingUsersString() + " to finish voting.";
@@ -176,7 +189,27 @@ public class DetailsVotingFragment extends Fragment {
                     jsonException.printStackTrace();
                 }
             } else {
-                Log.e(TAG, "Error saving votes");
+                Log.e(TAG, "Error saving votes", e);
+                try {
+                    FileOutputStream fos = getActivity().openFileOutput(
+                            "group.txt", Context.MODE_PRIVATE);
+                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
+                    writer.write(group.getObjectId() + "\n" +
+                            ParseUser.getCurrentUser().getUsername());
+                    writer.close();
+
+                    fos = getActivity().openFileOutput("rankings.txt", Context.MODE_PRIVATE);
+                    ObjectOutputStream out = new ObjectOutputStream(fos);
+                    List<String> individualRankings = new ArrayList<>();
+                    for (Location candidate : allCandidates) {
+                        individualRankings.add(candidate.getObjectId());
+                    }
+                    out.writeObject(individualRankings);
+                    out.close();
+                    fos.close();
+                } catch (IOException fileNotFoundException) {
+                    fileNotFoundException.printStackTrace();
+                }
             }
         });
     }
@@ -188,6 +221,21 @@ public class DetailsVotingFragment extends Fragment {
         query.whereEqualTo(Location.KEY_TYPE, Constants.TYPE_CANDIDATE);
         query.addDescendingOrder("createdAt");
         query.findInBackground((objects, e) -> adapter.addAll(objects));
+    }
+
+    private void readStorage() throws IOException, ClassNotFoundException {
+        BufferedReader input = new BufferedReader(new InputStreamReader(
+                getActivity().openFileInput("group.txt")));
+        String line;
+        StringBuilder stringBuilder = new StringBuilder();
+        while ((line = input.readLine()) != null) {
+            stringBuilder.append(line).append("\n");
+        }
+        Log.i(TAG, stringBuilder.toString());
+
+        ObjectInputStream in = new ObjectInputStream(getActivity().openFileInput("rankings.txt"));
+        List<String> readRankings = (List<String>) in.readObject();
+        Log.i(TAG, readRankings.toString());
     }
 
     public void startDragging(RecyclerView.ViewHolder viewHolder) {
