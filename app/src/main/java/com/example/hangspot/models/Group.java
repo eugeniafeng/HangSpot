@@ -134,7 +134,7 @@ public class Group extends ParseObject {
         put(KEY_STATUS, status);
     }
 
-    public void checkStatus(Context context) throws JSONException {
+    public boolean checkStatus() throws JSONException {
         boolean hasCompleted = true;
         JSONObject userStatuses = getUserStatuses();
         for (Iterator<String> it = userStatuses.keys(); it.hasNext();) {
@@ -146,40 +146,8 @@ public class Group extends ParseObject {
         if (hasCompleted) {
             resetUserStatuses();
             setStatus(getStatus() + 1);
-            if (getStatus() == STATUS_CANDIDATES) {
-                calculateCentralLocation(context);
-            } else if (getStatus() == STATUS_VOTING) {
-                initializeRankings();
-            } else if (getStatus() == STATUS_COMPLETE) {
-                String objectId = findFinalLocation();
-                ParseQuery<Location> query = ParseQuery.getQuery("Location");
-                query.include("*");
-                query.getInBackground(objectId, (object, e) -> {
-                    if (e == null) {
-                        setFinalLocation(object);
-                        saveInBackground(e1 -> {
-                            if (e1 == null) {
-                                Log.i("Group", "Successfully updated status");
-                            } else {
-                                e1.printStackTrace();
-                            }
-                        });
-                    } else {
-                        e.printStackTrace();
-                    }
-                });
-            }
-
-            if (getStatus() != STATUS_COMPLETE) {
-                saveInBackground(e -> {
-                    if (e == null) {
-                        Log.i("Group", "Successfully updated status");
-                    } else {
-                        e.printStackTrace();
-                    }
-                });
-            }
         }
+        return hasCompleted;
     }
 
     public JSONObject getUserStatuses() {
