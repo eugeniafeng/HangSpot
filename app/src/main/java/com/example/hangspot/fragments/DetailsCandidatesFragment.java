@@ -67,9 +67,13 @@ public class DetailsCandidatesFragment extends Fragment {
         binding.swipeContainer.setOnRefreshListener(this::queryCandidates);
 
         try {
-            String waiting = group.getRemainingUsersString() + " to finish entering candidates.";
-            binding.tvWaiting.setText(waiting);
-            binding.tvWaiting.setVisibility(View.VISIBLE);
+            if (!group.getRemainingUsersString().isEmpty()) {
+                String waiting = group.getRemainingUsersString() + " to finish entering candidates.";
+                binding.tvWaiting.setText(waiting);
+                binding.tvWaiting.setVisibility(View.VISIBLE);
+            } else {
+                binding.tvWaiting.setVisibility(View.GONE);
+            }
         } catch (JSONException e) {
             binding.tvWaiting.setVisibility(View.GONE);
             e.printStackTrace();
@@ -120,32 +124,33 @@ public class DetailsCandidatesFragment extends Fragment {
                     JSONObject userStatuses = group.getUserStatuses();
                     userStatuses.put(ParseUser.getCurrentUser().getUsername(), true);
                     group.setUserStatuses(userStatuses);
+                    if (group.checkStatus()) {
+                        group.initializeRankings();
+                        getActivity()
+                                .getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.flDetailsContainer, new DetailsVotingFragment(group))
+                                .commit();
+                    } else {
+                        binding.btnDone.setEnabled(false);
+                        binding.btnAdd.setEnabled(false);
+                        if (!group.getRemainingUsersString().isEmpty()) {
+                            String waiting = group.getRemainingUsersString()
+                                    + " to finish entering candidates.";
+                            binding.tvWaiting.setText(waiting);
+                            binding.tvWaiting.setVisibility(View.VISIBLE);
+                        } else {
+                            binding.tvWaiting.setVisibility(View.GONE);
+                        }
+                    }
                 } catch (JSONException jsonException) {
                     jsonException.printStackTrace();
+                    binding.tvWaiting.setVisibility(View.GONE);
                 }
+
                 group.saveInBackground(e1 -> {
                     if (e1 == null) {
                         Log.i(TAG, "Group status saved successfully");
-                        binding.btnDone.setEnabled(false);
-                        binding.btnAdd.setEnabled(false);
-                        try {
-                            if (!group.getRemainingUsersString().isEmpty()) {
-                                String waiting = group.getRemainingUsersString()
-                                        + " to finish entering candidates.";
-                                binding.tvWaiting.setText(waiting);
-                                binding.tvWaiting.setVisibility(View.VISIBLE);
-                            } else {
-                                getActivity()
-                                        .getSupportFragmentManager()
-                                        .beginTransaction()
-                                        .replace(R.id.flDetailsContainer, new DetailsVotingFragment(group))
-                                        .commit();
-                            }
-                            group.checkStatus(getContext());
-                        } catch (JSONException jsonException) {
-                            binding.tvWaiting.setVisibility(View.GONE);
-                            jsonException.printStackTrace();
-                        }
                     } else {
                         e1.printStackTrace();
                     }
