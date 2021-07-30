@@ -8,6 +8,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.example.hangspot.models.Group;
+import com.parse.ParseException;
 import com.parse.ParseQuery;
 
 import org.jetbrains.annotations.NotNull;
@@ -62,49 +63,44 @@ public class SaveVotesWorker extends Worker {
 
         if (groupObjectId != null && username != null && readRankings != null) {
             ParseQuery<Group> query = ParseQuery.getQuery("Group");
-            List<String> finalReadRankings = readRankings;
-            String finalUsername = username;
-            query.getInBackground(groupObjectId, (object, e) -> {
-                if (e == null) {
-                    JSONObject rankings = object.getRankings();
-                    for (int i = 0; i < finalReadRankings.size(); i++) {
-                        try {
-                            String objectId = finalReadRankings.get(i);
-                            rankings.put(objectId, rankings.getInt(objectId) + i);
-                        } catch (JSONException e1) {
-                            e1.printStackTrace();
-                        }
-                    }
-                    object.setRankings(rankings);
+            Group group;
+            try {
+                group = query.get(groupObjectId);
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return Result.retry();
+            }
 
-                    JSONObject userStatuses = object.getUserStatuses();
-                    try {
-                        userStatuses.put(finalUsername, true);
-                    } catch (JSONException e2) {
-                        e2.printStackTrace();
-                    }
-                    object.setUserStatuses(userStatuses);
-
-                    object.saveInBackground(e3 -> {
-                        if (e3 == null) {
-                            Log.i(TAG, "Group status saved successfully");
-                            try {
-                                object.checkStatus(context);
-                            } catch (JSONException jsonException) {
-                                jsonException.printStackTrace();
-                            }
-                        } else {
-                            e3.printStackTrace();
-                        }
-                    });
-                } else {
-                    e.printStackTrace();
+            JSONObject rankings = group.getRankings();
+            for (int i = 0; i < readRankings.size(); i++) {
+                try {
+                    String objectId = readRankings.get(i);
+                    rankings.put(objectId, rankings.getInt(objectId) + i);
+                } catch (JSONException e1) {
+                    e1.printStackTrace();
                 }
-            });
+            }
+            group.setRankings(rankings);
+
+            JSONObject userStatuses = group.getUserStatuses();
+            try {
+                userStatuses.put(username, true);
+            } catch (JSONException e2) {
+                e2.printStackTrace();
+            }
+            group.setUserStatuses(userStatuses);
+
+            try {
+                group.save();
+                group.checkStatus(context);
+                Log.i(TAG, "Successfully saved votes");
+                return Result.success();
+            } catch (ParseException | JSONException parseException) {
+                parseException.printStackTrace();
+                return Result.retry();
+            }
         } else {
             return Result.failure();
         }
-
-        return Result.success();
     }
 }
