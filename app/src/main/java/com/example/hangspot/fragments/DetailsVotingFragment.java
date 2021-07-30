@@ -31,6 +31,7 @@ import com.example.hangspot.models.Location;
 import com.example.hangspot.utils.Constants;
 import com.example.hangspot.utils.SaveVotesWorker;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -124,9 +125,13 @@ public class DetailsVotingFragment extends Fragment {
         itemTouchHelper.attachToRecyclerView(binding.rvVoting);
         
         try {
-            String waiting = group.getRemainingUsersString() + " to finish voting.";
-            binding.tvWaiting.setText(waiting);
-            binding.tvWaiting.setVisibility(View.VISIBLE);
+            if (!group.getRemainingUsersString().isEmpty()) {
+                String waiting = group.getRemainingUsersString() + " to finish voting.";
+                binding.tvWaiting.setText(waiting);
+                binding.tvWaiting.setVisibility(View.VISIBLE);
+            } else {
+                binding.tvWaiting.setVisibility(View.GONE);
+            }
         } catch (JSONException e) {
             binding.tvWaiting.setVisibility(View.GONE);
             e.printStackTrace();
@@ -139,7 +144,13 @@ public class DetailsVotingFragment extends Fragment {
                 .addToBackStack("DetailsVotingFragment")
                 .commit());
         
-        binding.btnSubmit.setOnClickListener(v -> saveRanking());
+        binding.btnSubmit.setOnClickListener(v -> {
+            try {
+                saveRanking();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        });
         
         boolean userStatus = false;
         try {
@@ -154,7 +165,7 @@ public class DetailsVotingFragment extends Fragment {
         }
     }
 
-    private void saveRanking() {
+    private void saveRanking() throws JSONException {
         binding.btnSubmit.setEnabled(false);
         binding.btnMap.setEnabled(false);
         binding.ivOverlay.setVisibility(View.VISIBLE);
@@ -162,77 +173,86 @@ public class DetailsVotingFragment extends Fragment {
 
         JSONObject rankings = group.getRankings();
         for (int i = 0; i < allCandidates.size(); i++) {
-            try {
-                String objectId = allCandidates.get(i).getObjectId();
-                rankings.put(objectId, rankings.getInt(objectId) + i);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            String objectId = allCandidates.get(i).getObjectId();
+            rankings.put(objectId, rankings.getInt(objectId) + i);
         }
         group.setRankings(rankings);
 
         JSONObject userStatuses = group.getUserStatuses();
-        try {
-            userStatuses.put(ParseUser.getCurrentUser().getUsername(), true);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        userStatuses.put(ParseUser.getCurrentUser().getUsername(), true);
         group.setUserStatuses(userStatuses);
 
-        try {
-            if (!group.getRemainingUsersString().isEmpty()) {
-                String waiting = group.getRemainingUsersString() + " to finish voting.";
-                binding.tvWaiting.setText(waiting);
-                binding.tvWaiting.setVisibility(View.VISIBLE);
-            } else {
-                getActivity()
-                        .getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(R.id.flDetailsContainer, new DetailsCompleteFragment(group))
-                        .commit();
-            }
-        } catch (JSONException jsonException) {
+        if (!group.getRemainingUsersString().isEmpty()) {
+            String waiting = group.getRemainingUsersString() + " to finish voting.";
+            binding.tvWaiting.setText(waiting);
+            binding.tvWaiting.setVisibility(View.VISIBLE);
+        } else {
             binding.tvWaiting.setVisibility(View.GONE);
-            jsonException.printStackTrace();
         }
 
         group.saveInBackground(e -> {
             if (e == null) {
-                Log.i(TAG, "Group status saved successfully");
                 try {
-                    group.checkStatus(getContext());
+                    if (group.checkStatus()) {
+                        String objectId = group.findFinalLocation();
+                        ParseQuery<Location> query = ParseQuery.getQuery("Location");
+                        query.include("*");
+                        query.getInBackground(objectId, (object, e1) -> {
+                            if (e1 == null) {
+                                group.setFinalLocation(object);
+                                getActivity()
+                                        .getSupportFragmentManager()
+                                        .beginTransaction()
+                                        .replace(R.id.flDetailsContainer, new DetailsCompleteFragment(group))
+                                        .commit();
+                                group.saveInBackground(e2 -> {
+                                    if (e2 == null) {
+                                        Log.i(TAG, "Successfully saved final location");
+                                    } else {
+                                        e2.printStackTrace();
+                                    }
+                                });
+                            } else {
+                                e1.printStackTrace();
+                            }
+                        });
+                    }
                 } catch (JSONException jsonException) {
                     jsonException.printStackTrace();
                 }
             } else {
-                Log.e(TAG, "Error saving votes", e);
-                try {
-                    FileOutputStream fos = getContext().openFileOutput(
-                            "group.txt", Context.MODE_PRIVATE);
-                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
-                    writer.write(group.getObjectId() + "\n" +
-                            ParseUser.getCurrentUser().getUsername());
-                    writer.close();
-
-                    fos = getContext().openFileOutput("rankings.txt", Context.MODE_PRIVATE);
-                    ObjectOutputStream out = new ObjectOutputStream(fos);
-                    List<String> individualRankings = new ArrayList<>();
-                    for (Location candidate : allCandidates) {
-                        individualRankings.add(candidate.getObjectId());
-                    }
-                    out.writeObject(individualRankings);
-                    out.close();
-                    fos.close();
-                } catch (IOException fileNotFoundException) {
-                    fileNotFoundException.printStackTrace();
-                }
-                Constraints constraints = new Constraints.Builder()
-                        .setRequiredNetworkType(NetworkType.CONNECTED).build();
-                OneTimeWorkRequest saveVotesWorkRequest = new OneTimeWorkRequest
-                        .Builder(SaveVotesWorker.class).setConstraints(constraints).build();
-                WorkManager.getInstance().enqueue(saveVotesWorkRequest);
+                e.printStackTrace();
+                saveWhenNetworkConnected();
             }
         });
+    }
+
+    private void saveWhenNetworkConnected() {
+        try {
+            FileOutputStream fos = getContext().openFileOutput(
+                    "group.txt", Context.MODE_PRIVATE);
+            BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(fos));
+            writer.write(group.getObjectId() + "\n" +
+                    ParseUser.getCurrentUser().getUsername());
+            writer.close();
+
+            fos = getContext().openFileOutput("rankings.txt", Context.MODE_PRIVATE);
+            ObjectOutputStream out = new ObjectOutputStream(fos);
+            List<String> individualRankings = new ArrayList<>();
+            for (Location candidate : allCandidates) {
+                individualRankings.add(candidate.getObjectId());
+            }
+            out.writeObject(individualRankings);
+            out.close();
+            fos.close();
+        } catch (IOException fileNotFoundException) {
+            fileNotFoundException.printStackTrace();
+        }
+        Constraints constraints = new Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED).build();
+        OneTimeWorkRequest saveVotesWorkRequest = new OneTimeWorkRequest
+                .Builder(SaveVotesWorker.class).setConstraints(constraints).build();
+        WorkManager.getInstance().enqueue(saveVotesWorkRequest);
     }
 
     private void queryCandidates() {
