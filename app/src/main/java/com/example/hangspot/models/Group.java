@@ -198,45 +198,6 @@ public class Group extends ParseObject {
         put(KEY_CENTRAL_LOCATION, location);
     }
 
-    public void calculateCentralLocation(Context context) {
-        ParseQuery<Location> query = ParseQuery.getQuery("Location");
-        query.include("*");
-        query.whereEqualTo(Location.KEY_GROUP, this);
-        query.whereEqualTo(Location.KEY_TYPE, Constants.TYPE_HOME);
-        query.findInBackground((objects, e) -> {
-            if (e == null) {
-                LatLngBounds.Builder latLngBounds = LatLngBounds.builder();
-                for (Location location : objects) {
-                    latLngBounds.include(new LatLng(location.getCoordinates().getLatitude(),
-                            location.getCoordinates().getLongitude()));
-                }
-                LatLng centerCoords = latLngBounds.build().getCenter();
-                Location center = new Location();
-                center.setType(Constants.TYPE_CENTER);
-                center.setName(getName() + " Center Point");
-                center.setCoordinates(new ParseGeoPoint(centerCoords.latitude, centerCoords.longitude));
-                center.setGroup(Group.this);
-                center.setAddress(MapsFragment.findAddress(centerCoords, context));
-                center.saveInBackground(e1 -> {
-                    if (e1 == null) {
-                        setCentralLocation(center);
-                        saveInBackground(e2 -> {
-                            if (e2 == null) {
-                                Log.i("Group", "Successfully saved central location");
-                            } else {
-                                e2.printStackTrace();
-                            }
-                        });
-                    } else {
-                        e1.printStackTrace();
-                    }
-                });
-            } else {
-                e.printStackTrace();
-            }
-        });
-    }
-
     public Location getFinalLocation() {
         return (Location) get(KEY_FINAL_LOCATION);
     }

@@ -1,5 +1,6 @@
 package com.example.hangspot.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -20,6 +21,7 @@ import com.example.hangspot.models.UserGroups;
 import com.example.hangspot.utils.Constants;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.TypeFilter;
@@ -70,21 +72,19 @@ public class DetailsEnterLocationsFragment extends Fragment {
         setUpPlacesAutocomplete();
 
         try {
-            String waiting = group.getRemainingUsersString() + " to enter their location.";
-            binding.tvWaiting.setText(waiting);
-            binding.tvWaiting.setVisibility(View.VISIBLE);
+            if (!group.getRemainingUsersString().isEmpty()) {
+                String waiting = group.getRemainingUsersString() + " to enter their location.";
+                binding.tvWaiting.setText(waiting);
+                binding.tvWaiting.setVisibility(View.VISIBLE);
+            } else {
+                binding.tvWaiting.setVisibility(View.GONE);
+            }
         } catch (JSONException e) {
             binding.tvWaiting.setVisibility(View.GONE);
             e.printStackTrace();
         }
 
-        binding.btnSubmit.setOnClickListener(v -> {
-            try {
-                saveLocation();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        });
+        binding.btnSubmit.setOnClickListener(v -> saveLocation());
     }
 
     @Override
@@ -130,36 +130,36 @@ public class DetailsEnterLocationsFragment extends Fragment {
         });
     }
 
-    public void saveLocation() throws JSONException {
+    public void saveLocation() {
+        disableViews();
         location.saveInBackground(e -> {
             if (e == null) {
                 Log.i(TAG, "Location saved successfully");
-                disableViews();
-            } else {
-                e.printStackTrace();
-            }
-        });
-        JSONObject userStatuses = group.getUserStatuses();
-        userStatuses.put(ParseUser.getCurrentUser().getUsername(), true);
-        group.setUserStatuses(userStatuses);
-        group.saveInBackground(e -> {
-            if (e == null) {
-                Log.i(TAG, "Group status saved successfully");
+                JSONObject userStatuses = group.getUserStatuses();
                 try {
+                    userStatuses.put(ParseUser.getCurrentUser().getUsername(), true);
+                    group.setUserStatuses(userStatuses);
+
                     if (!group.getRemainingUsersString().isEmpty()) {
                         String waiting = group.getRemainingUsersString() + " to enter their location.";
                         binding.tvWaiting.setText(waiting);
                         binding.tvWaiting.setVisibility(View.VISIBLE);
                     } else {
-                        getActivity()
-                                .getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.flDetailsContainer, new DetailsCandidatesFragment(group))
-                                .commit();
+                        binding.tvWaiting.setVisibility(View.GONE);
                     }
-                    group.checkStatus(getContext());
+
+                    if (group.checkStatus()) {
+                        calculateCentralLocation();
+                    } else {
+                        group.saveInBackground(e1 -> {
+                            if (e1 == null) {
+                                Log.i(TAG, "Group status saved successfully");
+                            } else {
+                                e1.printStackTrace();
+                            }
+                        });
+                    }
                 } catch (JSONException jsonException) {
-                    binding.tvWaiting.setVisibility(View.GONE);
                     jsonException.printStackTrace();
                 }
             } else {
@@ -190,6 +190,50 @@ public class DetailsEnterLocationsFragment extends Fragment {
             if (e == null) {
                 location = objects.get(0);
                 autocompleteFragment.setText(location.getName());
+            } else {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public void calculateCentralLocation() {
+        ParseQuery<Location> query = ParseQuery.getQuery("Location");
+        query.include("*");
+        query.whereEqualTo(Location.KEY_GROUP, group);
+        query.whereEqualTo(Location.KEY_TYPE, Constants.TYPE_HOME);
+        query.findInBackground((objects, e) -> {
+            if (e == null) {
+                LatLngBounds.Builder latLngBounds = LatLngBounds.builder();
+                for (Location location : objects) {
+                    latLngBounds.include(new LatLng(location.getCoordinates().getLatitude(),
+                            location.getCoordinates().getLongitude()));
+                }
+                LatLng centerCoords = latLngBounds.build().getCenter();
+                Location center = new Location();
+                center.setType(Constants.TYPE_CENTER);
+                center.setName(group.getName() + " Center Point");
+                center.setCoordinates(new ParseGeoPoint(centerCoords.latitude, centerCoords.longitude));
+                center.setGroup(group);
+                center.setAddress(MapsFragment.findAddress(centerCoords, getContext()));
+                center.saveInBackground(e1 -> {
+                    if (e1 == null) {
+                        group.setCentralLocation(center);
+                        group.saveInBackground(e2 -> {
+                            if (e2 == null) {
+                                Log.i("Group", "Successfully saved central location");
+                            } else {
+                                e2.printStackTrace();
+                            }
+                        });
+                        getActivity()
+                                .getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.flDetailsContainer, new DetailsCandidatesFragment(group))
+                                .commit();
+                    } else {
+                        e1.printStackTrace();
+                    }
+                });
             } else {
                 e.printStackTrace();
             }
