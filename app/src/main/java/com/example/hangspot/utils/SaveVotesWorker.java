@@ -8,6 +8,7 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.example.hangspot.models.Group;
+import com.example.hangspot.models.Location;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 
@@ -91,8 +92,14 @@ public class SaveVotesWorker extends Worker {
             group.setUserStatuses(userStatuses);
 
             try {
+                if (group.checkStatus()) {
+                    String objectId = group.findFinalLocation();
+                    ParseQuery<Location> locationQuery = ParseQuery.getQuery("Location");
+                    locationQuery.include("*");
+                    Location finalLocation = locationQuery.get(objectId);
+                    group.setFinalLocation(finalLocation);
+                }
                 group.save();
-                group.checkStatus(context);
                 Log.i(TAG, "Successfully saved votes");
                 return Result.success();
             } catch (ParseException | JSONException parseException) {
