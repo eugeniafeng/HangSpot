@@ -222,7 +222,18 @@ public class DetailsVotingFragment extends Fragment {
                 }
             } else {
                 e.printStackTrace();
-                saveWhenNetworkConnected();
+                try {
+                    if (group.checkStatus()) {
+                        getActivity()
+                                .getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.flDetailsContainer, new DetailsCompleteFragment(group))
+                                .commit();
+                    }
+                    saveWhenNetworkConnected();
+                } catch (JSONException jsonException) {
+                    jsonException.printStackTrace();
+                }
             }
         });
     }

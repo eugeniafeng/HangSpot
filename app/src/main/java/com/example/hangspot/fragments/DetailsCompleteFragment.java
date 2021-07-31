@@ -44,36 +44,42 @@ public class DetailsCompleteFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         Location finalLocation = group.getFinalLocation();
-        finalLocation.fetchIfNeededInBackground((GetCallback<Location>) (location, e) -> {
-            if (e == null) {
-                binding.tvName.setText(location.getName());
-                binding.tvAddress.setText(location.getAddress());
+        if (finalLocation == null) {
+            String errorMessage = "Error\nPlease try again later.";
+            binding.tvName.setText(errorMessage);
+            binding.btnMap.setEnabled(false);
+        } else {
+            finalLocation.fetchIfNeededInBackground((GetCallback<Location>) (location, e) -> {
+                if (e == null) {
+                    binding.tvName.setText(location.getName());
+                    binding.tvAddress.setText(location.getAddress());
 
-                if (location.getDescription().isEmpty()) {
-                    binding.tvDescription.setVisibility(View.GONE);
-                } else {
-                    binding.tvDescription.setVisibility(View.VISIBLE);
-                    binding.tvDescription.setText(location.getDescription());
-                }
-
-                location.getAddedBy().fetchIfNeededInBackground((GetCallback<ParseUser>) (user, e1) -> {
-                    if (e1 == null) {
-                        String addedBy = "Added by: " + user.getUsername();
-                        binding.tvAddedBy.setText(addedBy);
+                    if (location.getDescription().isEmpty()) {
+                        binding.tvDescription.setVisibility(View.GONE);
                     } else {
-                        e1.printStackTrace();
+                        binding.tvDescription.setVisibility(View.VISIBLE);
+                        binding.tvDescription.setText(location.getDescription());
                     }
-                });
-            } else {
-                e.printStackTrace();
-            }
-        });
 
-        binding.btnMap.setOnClickListener(v -> getActivity()
-                .getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.flDetailsContainer, new MapsFragment(group, this))
-                .addToBackStack("DetailsCompleteFragment")
-                .commit());
+                    location.getAddedBy().fetchIfNeededInBackground((GetCallback<ParseUser>) (user, e1) -> {
+                        if (e1 == null) {
+                            String addedBy = "Added by: " + user.getUsername();
+                            binding.tvAddedBy.setText(addedBy);
+                        } else {
+                            e1.printStackTrace();
+                        }
+                    });
+                } else {
+                    e.printStackTrace();
+                }
+            });
+
+            binding.btnMap.setOnClickListener(v -> getActivity()
+                    .getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.flDetailsContainer, new MapsFragment(group, this))
+                    .addToBackStack("DetailsCompleteFragment")
+                    .commit());
+        }
     }
 }
