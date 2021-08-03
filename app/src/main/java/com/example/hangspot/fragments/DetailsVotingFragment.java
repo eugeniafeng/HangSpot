@@ -11,17 +11,16 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Constraints;
-import androidx.work.Data;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
-import androidx.work.WorkRequest;
 
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.hangspot.R;
 import com.example.hangspot.adapters.CandidatesAdapter;
@@ -30,26 +29,16 @@ import com.example.hangspot.models.Group;
 import com.example.hangspot.models.Location;
 import com.example.hangspot.utils.Constants;
 import com.example.hangspot.utils.SaveVotesWorker;
-import com.parse.FindCallback;
-import com.parse.GetCallback;
-import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.util.ArrayList;
@@ -190,6 +179,15 @@ public class DetailsVotingFragment extends Fragment {
             binding.tvWaiting.setVisibility(View.GONE);
         }
 
+        new android.os.Handler(Looper.getMainLooper()).postDelayed(() -> {
+            Toast.makeText(getContext(),
+                    "No internet connection. Will retry later.",
+                    Toast.LENGTH_LONG)
+                    .show();
+            saveWhenNetworkConnected();
+                },
+                5000);
+
         group.saveInBackground(e -> {
             if (e == null) {
                 try {
@@ -222,23 +220,24 @@ public class DetailsVotingFragment extends Fragment {
                 }
             } else {
                 e.printStackTrace();
-                try {
-                    if (group.checkStatus()) {
-                        getActivity()
-                                .getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.flDetailsContainer, new DetailsCompleteFragment(group))
-                                .commit();
-                    }
-                    saveWhenNetworkConnected();
-                } catch (JSONException jsonException) {
-                    jsonException.printStackTrace();
-                }
             }
         });
     }
 
     private void saveWhenNetworkConnected() {
+        try {
+            if (group.checkStatus()) {
+                getActivity()
+                        .getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.flDetailsContainer, new DetailsCompleteFragment(group))
+                        .commit();
+            }
+
+        } catch (JSONException jsonException) {
+            jsonException.printStackTrace();
+        }
+
         try {
             FileOutputStream fos = getContext().openFileOutput(
                     "group.txt", Context.MODE_PRIVATE);
