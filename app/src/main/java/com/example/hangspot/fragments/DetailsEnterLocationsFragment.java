@@ -1,47 +1,38 @@
 package com.example.hangspot.fragments;
 
-import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.example.hangspot.R;
 import com.example.hangspot.databinding.FragmentDetailsEnterLocationsBinding;
 import com.example.hangspot.models.Group;
 import com.example.hangspot.models.Location;
-import com.example.hangspot.models.UserGroups;
 import com.example.hangspot.utils.Constants;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
-import com.google.android.libraries.places.api.model.TypeFilter;
-import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
-import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.Arrays;
-import java.util.List;
 
 public class DetailsEnterLocationsFragment extends Fragment {
 
@@ -135,33 +126,41 @@ public class DetailsEnterLocationsFragment extends Fragment {
         location.saveInBackground(e -> {
             if (e == null) {
                 Log.i(TAG, "Location saved successfully");
-                JSONObject userStatuses = group.getUserStatuses();
-                try {
-                    userStatuses.put(ParseUser.getCurrentUser().getUsername(), true);
-                    group.setUserStatuses(userStatuses);
+                ParseQuery<Group> query = ParseQuery.getQuery("Group");
+                query.getInBackground(group.getObjectId(), (object, e1) -> {
+                    if (e1 == null) {
+                        group = object;
+                        JSONObject userStatuses = group.getUserStatuses();
+                        try {
+                            userStatuses.put(ParseUser.getCurrentUser().getUsername(), true);
+                            group.setUserStatuses(userStatuses);
 
-                    if (!group.getRemainingUsersString().isEmpty()) {
-                        String waiting = group.getRemainingUsersString() + " to enter their location.";
-                        binding.tvWaiting.setText(waiting);
-                        binding.tvWaiting.setVisibility(View.VISIBLE);
-                    } else {
-                        binding.tvWaiting.setVisibility(View.GONE);
-                    }
-
-                    if (group.checkStatus()) {
-                        calculateCentralLocation();
-                    } else {
-                        group.saveInBackground(e1 -> {
-                            if (e1 == null) {
-                                Log.i(TAG, "Group status saved successfully");
+                            if (!group.getRemainingUsersString().isEmpty()) {
+                                String waiting = group.getRemainingUsersString() + " to enter their location.";
+                                binding.tvWaiting.setText(waiting);
+                                binding.tvWaiting.setVisibility(View.VISIBLE);
                             } else {
-                                e1.printStackTrace();
+                                binding.tvWaiting.setVisibility(View.GONE);
                             }
-                        });
+
+                            if (group.checkStatus()) {
+                                calculateCentralLocation();
+                            } else {
+                                group.saveInBackground(e2 -> {
+                                    if (e2 == null) {
+                                        Log.i(TAG, "Group status saved successfully");
+                                    } else {
+                                        e2.printStackTrace();
+                                    }
+                                });
+                            }
+                        } catch (JSONException jsonException) {
+                            jsonException.printStackTrace();
+                        }
+                    } else {
+                        e1.printStackTrace();
                     }
-                } catch (JSONException jsonException) {
-                    jsonException.printStackTrace();
-                }
+                });
             } else {
                 e.printStackTrace();
             }

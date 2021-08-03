@@ -38,6 +38,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseGeoPoint;
 import com.parse.ParseQuery;
@@ -190,12 +191,20 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
             if (e == null) {
                 Log.i(TAG, "Successfully saved location candidate");
 
-                List<Location> candidates = group.getLocationCandidates();
-                candidates.add(candidate);
-                group.setLocationCandidates(candidates);
-                group.saveInBackground(e1 -> {
+                ParseQuery<Group> query = ParseQuery.getQuery("Group");
+                query.getInBackground(group.getObjectId(), (object, e1) -> {
                     if (e1 == null) {
-                        Log.i(TAG, "Successfully saved location candidate in group");
+                        group = object;
+                        List<Location> candidates = group.getLocationCandidates();
+                        candidates.add(candidate);
+                        group.setLocationCandidates(candidates);
+                        group.saveInBackground(e2 -> {
+                            if (e2 == null) {
+                                Log.i(TAG, "Successfully saved location candidate in group");
+                            } else {
+                                e2.printStackTrace();
+                            }
+                        });
                     } else {
                         e1.printStackTrace();
                     }

@@ -21,6 +21,7 @@ import com.example.hangspot.models.Group;
 import com.example.hangspot.models.Location;
 import com.example.hangspot.utils.Constants;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
@@ -119,42 +120,52 @@ public class DetailsCandidatesFragment extends Fragment {
         query.whereEqualTo(Location.KEY_TYPE, Constants.TYPE_CANDIDATE);
         query.whereEqualTo(Location.KEY_ADDED_BY, ParseUser.getCurrentUser());
         query.findInBackground((objects, e) -> {
-            if (objects != null && objects.size() > 0) {
-                try {
-                    JSONObject userStatuses = group.getUserStatuses();
-                    userStatuses.put(ParseUser.getCurrentUser().getUsername(), true);
-                    group.setUserStatuses(userStatuses);
-                    if (group.checkStatus()) {
-                        group.initializeRankings();
-                        getActivity()
-                                .getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.flDetailsContainer, new DetailsVotingFragment(group))
-                                .commit();
-                    } else {
-                        binding.btnDone.setEnabled(false);
-                        binding.btnAdd.setEnabled(false);
-                        if (!group.getRemainingUsersString().isEmpty()) {
-                            String waiting = group.getRemainingUsersString()
-                                    + " to finish entering candidates.";
-                            binding.tvWaiting.setText(waiting);
-                            binding.tvWaiting.setVisibility(View.VISIBLE);
-                        } else {
+            if (e == null && objects != null && objects.size() > 0) {
+                ParseQuery<Group> groupQuery = ParseQuery.getQuery("Group");
+                groupQuery.getInBackground(group.getObjectId(), (object, e1) -> {
+                    if (e1 == null) {
+                        group = object;
+                        try {
+                            JSONObject userStatuses = group.getUserStatuses();
+                            userStatuses.put(ParseUser.getCurrentUser().getUsername(), true);
+                            group.setUserStatuses(userStatuses);
+                            if (group.checkStatus()) {
+                                group.initializeRankings();
+                                getActivity()
+                                        .getSupportFragmentManager()
+                                        .beginTransaction()
+                                        .replace(R.id.flDetailsContainer, new DetailsVotingFragment(group))
+                                        .commit();
+                            } else {
+                                binding.btnDone.setEnabled(false);
+                                binding.btnAdd.setEnabled(false);
+                                if (!group.getRemainingUsersString().isEmpty()) {
+                                    String waiting = group.getRemainingUsersString()
+                                            + " to finish entering candidates.";
+                                    binding.tvWaiting.setText(waiting);
+                                    binding.tvWaiting.setVisibility(View.VISIBLE);
+                                } else {
+                                    binding.tvWaiting.setVisibility(View.GONE);
+                                }
+                            }
+                        } catch (JSONException jsonException) {
+                            jsonException.printStackTrace();
                             binding.tvWaiting.setVisibility(View.GONE);
                         }
-                    }
-                } catch (JSONException jsonException) {
-                    jsonException.printStackTrace();
-                    binding.tvWaiting.setVisibility(View.GONE);
-                }
 
-                group.saveInBackground(e1 -> {
-                    if (e1 == null) {
-                        Log.i(TAG, "Group status saved successfully");
+                        group.saveInBackground(e2 -> {
+                            if (e2 == null) {
+                                Log.i(TAG, "Group status saved successfully");
+                            } else {
+                                e2.printStackTrace();
+                            }
+                        });
                     } else {
                         e1.printStackTrace();
                     }
                 });
+            } else if (e != null) {
+                e.printStackTrace();
             } else {
                 Toast.makeText(getContext(),
                         "Please add at least one candidate",
