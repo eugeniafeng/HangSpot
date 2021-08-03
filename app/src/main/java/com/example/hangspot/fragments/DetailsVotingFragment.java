@@ -15,6 +15,7 @@ import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
+import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,6 +30,8 @@ import com.example.hangspot.models.Group;
 import com.example.hangspot.models.Location;
 import com.example.hangspot.utils.Constants;
 import com.example.hangspot.utils.SaveVotesWorker;
+import com.parse.GetCallback;
+import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
@@ -133,13 +136,7 @@ public class DetailsVotingFragment extends Fragment {
                 .addToBackStack("DetailsVotingFragment")
                 .commit());
         
-        binding.btnSubmit.setOnClickListener(v -> {
-            try {
-                saveRanking();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        });
+        binding.btnSubmit.setOnClickListener(v -> saveRanking());
         
         boolean userStatus = false;
         try {
@@ -154,19 +151,84 @@ public class DetailsVotingFragment extends Fragment {
         }
     }
 
-    private void saveRanking() throws JSONException {
+    private void saveRanking() {
         binding.btnSubmit.setEnabled(false);
         binding.btnMap.setEnabled(false);
         binding.ivOverlay.setVisibility(View.VISIBLE);
         binding.ivOverlay.setElevation(1);
 
-        JSONObject rankings = group.getRankings();
-        for (int i = 0; i < allCandidates.size(); i++) {
-            String objectId = allCandidates.get(i).getObjectId();
-            rankings.put(objectId, rankings.getInt(objectId) + i);
-        }
-        group.setRankings(rankings);
+        Handler handler = new Handler(Looper.getMainLooper());
+        Runnable runnable = () -> {
+            Toast.makeText(getContext(), "No internet connection. Will retry later.", Toast.LENGTH_LONG).show();
+            saveWhenNetworkConnected();
+        };
+        handler.postDelayed(runnable,5000);
 
+        try {
+            updateUserStatuses();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        ParseQuery<Group> query = ParseQuery.getQuery("Group");
+        query.getInBackground(group.getObjectId(), (object, e) -> {
+            handler.removeCallbacks(runnable);
+            if (e == null) {
+                group = object;
+                try {
+                    JSONObject rankings = group.getRankings();
+                    for (int i = 0; i < allCandidates.size(); i++) {
+                        String objectId = allCandidates.get(i).getObjectId();
+                        rankings.put(objectId, rankings.getInt(objectId) + i);
+                    }
+                    group.setRankings(rankings);
+                    updateUserStatuses();
+                } catch (JSONException jsonException) {
+                    jsonException.printStackTrace();
+                }
+
+                group.saveInBackground(e1 -> {
+                    if (e1 == null) {
+                        try {
+                            if (group.checkStatus()) {
+                                String objectId = group.findFinalLocation();
+                                ParseQuery<Location> locationQuery = ParseQuery.getQuery("Location");
+                                locationQuery.include("*");
+                                locationQuery.getInBackground(objectId, (location, e2) -> {
+                                    if (e2 == null) {
+                                        group.setFinalLocation(location);
+                                        getActivity()
+                                                .getSupportFragmentManager()
+                                                .beginTransaction()
+                                                .replace(R.id.flDetailsContainer,
+                                                        new DetailsCompleteFragment(group))
+                                                .commit();
+                                        group.saveInBackground(e3 -> {
+                                            if (e3 == null) {
+                                                Log.i(TAG, "Successfully saved final location");
+                                            } else {
+                                                e3.printStackTrace();
+                                            }
+                                        });
+                                    } else {
+                                        e2.printStackTrace();
+                                    }
+                                });
+                            }
+                        } catch (JSONException jsonException) {
+                            jsonException.printStackTrace();
+                        }
+                    } else {
+                        e1.printStackTrace();
+                    }
+                });
+            } else {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void updateUserStatuses() throws JSONException {
         JSONObject userStatuses = group.getUserStatuses();
         userStatuses.put(ParseUser.getCurrentUser().getUsername(), true);
         group.setUserStatuses(userStatuses);
@@ -178,50 +240,6 @@ public class DetailsVotingFragment extends Fragment {
         } else {
             binding.tvWaiting.setVisibility(View.GONE);
         }
-
-        new android.os.Handler(Looper.getMainLooper()).postDelayed(() -> {
-            Toast.makeText(getContext(),
-                    "No internet connection. Will retry later.",
-                    Toast.LENGTH_LONG)
-                    .show();
-            saveWhenNetworkConnected();
-                },
-                5000);
-
-        group.saveInBackground(e -> {
-            if (e == null) {
-                try {
-                    if (group.checkStatus()) {
-                        String objectId = group.findFinalLocation();
-                        ParseQuery<Location> query = ParseQuery.getQuery("Location");
-                        query.include("*");
-                        query.getInBackground(objectId, (object, e1) -> {
-                            if (e1 == null) {
-                                group.setFinalLocation(object);
-                                getActivity()
-                                        .getSupportFragmentManager()
-                                        .beginTransaction()
-                                        .replace(R.id.flDetailsContainer, new DetailsCompleteFragment(group))
-                                        .commit();
-                                group.saveInBackground(e2 -> {
-                                    if (e2 == null) {
-                                        Log.i(TAG, "Successfully saved final location");
-                                    } else {
-                                        e2.printStackTrace();
-                                    }
-                                });
-                            } else {
-                                e1.printStackTrace();
-                            }
-                        });
-                    }
-                } catch (JSONException jsonException) {
-                    jsonException.printStackTrace();
-                }
-            } else {
-                e.printStackTrace();
-            }
-        });
     }
 
     private void saveWhenNetworkConnected() {
