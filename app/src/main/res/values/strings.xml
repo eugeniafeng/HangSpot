@@ -19,7 +19,8 @@
     <string name="location_candidates">Location Candidates</string>
     <string name="add_candidates">Add Candidates</string>
     <string name="done_adding">Done Adding</string>
-    <string name="rank_the_candidates">Rank The Candidates</string>
     <string name="submit_ranking">Submit Ranking</string>
     <string name="final_location">Final Location</string>
+    <string name="voting">Voting</string>
+    <string name="voting_instructions">Rank your preferences from top to bottom.</string>
 </resources>

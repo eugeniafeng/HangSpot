@@ -11,18 +11,33 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:padding="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
         android:fontFamily="casual"
-        android:text="@string/rank_the_candidates"
+        android:text="@string/voting"
         android:textColor="@color/violet_blue"
         android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+    <TextView
+        android:id="@+id/tvInstructions"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvVote"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="casual"
+        android:text="@string/voting_instructions"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textColor="@color/violet_blue" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvVoting"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/tvWaiting"
-        android:layout_below="@id/tvVote" />
+        android:layout_below="@id/tvInstructions" />
 
     <TextView
         android:id="@+id/tvWaiting"
