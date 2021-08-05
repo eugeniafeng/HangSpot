@@ -1,0 +1,71 @@
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="Profile">
+
+        <EditTextPreference
+            app:key="username"
+            app:title="Change Username" />
+
+        <Preference
+            app:key="password"
+            app:title="Change Password" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Notifications">
+
+        <SwitchPreferenceCompat
+            app:key="groupNotifs"
+            app:title="Enable notifications" />
+
+        <SwitchPreferenceCompat
+            app:dependency="groupNotifs"
+            app:key="stageNotifs"
+            app:summaryOff="Notifications will only appear for stage updates"
+            app:summaryOn="Notifications will appear for all group updates"
+            app:title="Notifications Threshold" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Privacy">
+
+        <Preference
+            app:key="activityStatus"
+            app:title="Activity Status" />
+
+        <Preference
+            app:key="blocked"
+            app:title="Blocked Users" />
+
+        <Preference
+            app:key="muted"
+            app:title="Muted Users" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="About">
+
+        <Preference
+            app:key="dataPolicy"
+            app:title="Data Policy" />
+
+        <Preference
+            app:key="terms"
+            app:title="Terms of Use" />
+
+        <Preference
+            app:key="feedback"
+            app:title="Send Feedback"
+            app:summary="Report technical issues or suggest new features" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Log Out">
+
+        <Preference
+            app:key="logout"
+            app:title="@string/logout" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>
