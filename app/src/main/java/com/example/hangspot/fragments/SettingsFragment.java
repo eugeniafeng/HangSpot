@@ -15,6 +15,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
         setPreferencesFromResource(R.xml.root_preferences, rootKey);
+
         Preference logoutPreference = findPreference("logout");
         logoutPreference.setOnPreferenceClickListener(preference -> {
             ParseUser.logOutInBackground();
@@ -23,5 +24,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
             getActivity().finish();
             return true;
         });
+
+        findPreference("username").setSummary(ParseUser.getCurrentUser().getUsername());
     }
 }
