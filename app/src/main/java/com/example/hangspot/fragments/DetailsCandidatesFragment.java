@@ -1,5 +1,6 @@
 package com.example.hangspot.fragments;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -115,6 +116,12 @@ public class DetailsCandidatesFragment extends Fragment {
     }
 
     private void updateUserStatuses() {
+        ProgressDialog pd = new ProgressDialog(getContext());
+        pd.setTitle("Saving...");
+        pd.setMessage("Please wait.");
+        pd.setCancelable(false);
+        pd.show();
+
         ParseQuery<Location> query = ParseQuery.getQuery("Location");
         query.whereEqualTo(Location.KEY_GROUP, group);
         query.whereEqualTo(Location.KEY_TYPE, Constants.TYPE_CANDIDATE);
@@ -156,6 +163,7 @@ public class DetailsCandidatesFragment extends Fragment {
                         group.saveInBackground(e2 -> {
                             if (e2 == null) {
                                 Log.i(TAG, "Group status saved successfully");
+                                pd.dismiss();
                             } else {
                                 e2.printStackTrace();
                             }
@@ -167,6 +175,7 @@ public class DetailsCandidatesFragment extends Fragment {
             } else if (e != null) {
                 e.printStackTrace();
             } else {
+                pd.dismiss();
                 Toast.makeText(getContext(),
                         "Please add at least one candidate",
                         Toast.LENGTH_SHORT)

@@ -1,5 +1,6 @@
 package com.example.hangspot.fragments;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -157,10 +158,17 @@ public class DetailsVotingFragment extends Fragment {
         binding.ivOverlay.setVisibility(View.VISIBLE);
         binding.ivOverlay.setElevation(1);
 
+        ProgressDialog pd = new ProgressDialog(getContext());
+        pd.setTitle("Saving...");
+        pd.setMessage("Please wait.");
+        pd.setCancelable(false);
+        pd.show();
+
         Handler handler = new Handler(Looper.getMainLooper());
         Runnable runnable = () -> {
             Toast.makeText(getContext(), "No internet connection. Will retry later.", Toast.LENGTH_LONG).show();
             saveWhenNetworkConnected();
+            pd.dismiss();
         };
         handler.postDelayed(runnable,5000);
 
@@ -206,6 +214,7 @@ public class DetailsVotingFragment extends Fragment {
                                         group.saveInBackground(e3 -> {
                                             if (e3 == null) {
                                                 Log.i(TAG, "Successfully saved final location");
+                                                pd.dismiss();
                                             } else {
                                                 e3.printStackTrace();
                                             }
@@ -214,6 +223,8 @@ public class DetailsVotingFragment extends Fragment {
                                         e2.printStackTrace();
                                     }
                                 });
+                            } else {
+                                pd.dismiss();
                             }
                         } catch (JSONException jsonException) {
                             jsonException.printStackTrace();

@@ -1,5 +1,6 @@
 package com.example.hangspot.fragments;
 
+import android.app.ProgressDialog;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -41,6 +42,7 @@ public class DetailsEnterLocationsFragment extends Fragment {
     private AutocompleteSupportFragment autocompleteFragment;
     private Group group;
     private Location location;
+    private ProgressDialog pd;
 
     public DetailsEnterLocationsFragment() {}
 
@@ -123,6 +125,13 @@ public class DetailsEnterLocationsFragment extends Fragment {
 
     public void saveLocation() {
         disableViews();
+
+        pd = new ProgressDialog(getContext());
+        pd.setTitle("Saving...");
+        pd.setMessage("Please wait.");
+        pd.setCancelable(false);
+        pd.show();
+
         location.saveInBackground(e -> {
             if (e == null) {
                 Log.i(TAG, "Location saved successfully");
@@ -149,6 +158,7 @@ public class DetailsEnterLocationsFragment extends Fragment {
                                 group.saveInBackground(e2 -> {
                                     if (e2 == null) {
                                         Log.i(TAG, "Group status saved successfully");
+                                        pd.dismiss();
                                     } else {
                                         e2.printStackTrace();
                                     }
@@ -220,6 +230,7 @@ public class DetailsEnterLocationsFragment extends Fragment {
                         group.saveInBackground(e2 -> {
                             if (e2 == null) {
                                 Log.i("Group", "Successfully saved central location");
+                                pd.dismiss();
                             } else {
                                 e2.printStackTrace();
                             }
