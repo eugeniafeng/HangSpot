@@ -7,21 +7,14 @@ import androidx.fragment.app.FragmentManager;
 import android.os.Bundle;
 import android.util.Log;
 
-import com.example.hangspot.R;
 import com.example.hangspot.databinding.ActivityGroupDetailBinding;
-import com.example.hangspot.fragments.ComposeFragment;
 import com.example.hangspot.fragments.DetailsCandidatesFragment;
 import com.example.hangspot.fragments.DetailsCompleteFragment;
 import com.example.hangspot.fragments.DetailsEnterLocationsFragment;
 import com.example.hangspot.fragments.DetailsVotingFragment;
-import com.example.hangspot.fragments.GroupsFragment;
-import com.example.hangspot.fragments.MapsFragment;
-import com.example.hangspot.fragments.SettingsFragment;
 import com.example.hangspot.models.Group;
 import com.example.hangspot.utils.Constants;
 import com.parse.GetCallback;
-import com.parse.ParseException;
-import com.parse.ParseObject;
 
 import org.parceler.Parcels;
 
@@ -57,6 +50,7 @@ public class GroupDetailActivity extends AppCompatActivity {
                         fragment = new DetailsCompleteFragment(group);
                         break;
                 }
+                getSupportActionBar().setTitle(group.getName());
                 fragmentManager.beginTransaction().replace(binding.flDetailsContainer.getId(), fragment).commit();
             } else {
                 e.printStackTrace();

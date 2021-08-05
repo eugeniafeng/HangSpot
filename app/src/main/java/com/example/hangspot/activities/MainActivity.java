@@ -27,24 +27,30 @@ public class MainActivity extends AppCompatActivity {
         // set default selection
         fragmentManager.beginTransaction().replace(binding.flContainer.getId(), new GroupsFragment()).commit();
         binding.bottomBar.setItemActiveIndex(0);
+        getSupportActionBar().setTitle("Groups");
 
         // leave as anonymous function, not lambda to avoid ambiguity
         binding.bottomBar.setOnItemSelectedListener(new OnItemSelectedListener() {
             @Override
             public boolean onItemSelect(int i) {
                 Fragment fragment;
+                String title;
                 switch(i) {
                     case 0:
                         fragment = new GroupsFragment();
+                        title = "Groups";
                         break;
                     case 1:
                         fragment = new ComposeFragment();
+                        title = "Compose";
                         break;
                     case 2:
                     default:
                         fragment = new SettingsFragment();
+                        title = "Settings";
                         break;
                 }
+                getSupportActionBar().setTitle(title);
                 fragmentManager.beginTransaction().replace(binding.flContainer.getId(), fragment).commit();
                 return true;
             }
