@@ -1,70 +1,91 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <PreferenceCategory app:title="Profile">
+    <PreferenceCategory
+        app:title="Profile"
+        app:iconSpaceReserved="false" >
 
         <EditTextPreference
             app:key="username"
-            app:title="Change Username" />
+            app:title="Change Username"
+            app:iconSpaceReserved="false" />
 
         <Preference
             app:key="password"
-            app:title="Change Password" />
+            app:title="Change Password"
+            app:iconSpaceReserved="false" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="Notifications">
+    <PreferenceCategory
+        app:title="Notifications"
+        app:iconSpaceReserved="false" >
 
         <SwitchPreferenceCompat
             app:key="groupNotifs"
-            app:title="Enable notifications" />
+            app:title="Enable notifications"
+            app:iconSpaceReserved="false" />
 
         <SwitchPreferenceCompat
             app:dependency="groupNotifs"
             app:key="stageNotifs"
             app:summaryOff="Notifications will only appear for stage updates"
             app:summaryOn="Notifications will appear for all group updates"
-            app:title="Notifications Threshold" />
+            app:title="Notifications Level"
+            app:iconSpaceReserved="false" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="Privacy">
+    <PreferenceCategory
+        app:title="Privacy"
+        app:iconSpaceReserved="false" >
 
         <Preference
             app:key="activityStatus"
-            app:title="Activity Status" />
+            app:title="Activity Status"
+            app:iconSpaceReserved="false" />
 
         <Preference
             app:key="blocked"
-            app:title="Blocked Users" />
+            app:title="Blocked Users"
+            app:iconSpaceReserved="false" />
 
         <Preference
             app:key="muted"
-            app:title="Muted Users" />
+            app:title="Muted Users"
+            app:iconSpaceReserved="false" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="About">
+    <PreferenceCategory
+        app:title="About"
+        app:iconSpaceReserved="false">
 
         <Preference
             app:key="dataPolicy"
-            app:title="Data Policy" />
+            app:title="Data Policy"
+            app:iconSpaceReserved="false" />
 
         <Preference
             app:key="terms"
-            app:title="Terms of Use" />
+            app:title="Terms of Use"
+            app:iconSpaceReserved="false" />
 
         <Preference
             app:key="feedback"
             app:title="Send Feedback"
-            app:summary="Report technical issues or suggest new features" />
+            app:summary="Report technical issues or suggest new features"
+            app:iconSpaceReserved="false" />
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="Log Out">
+    <PreferenceCategory
+        app:title="Log Out"
+        app:iconSpaceReserved="false">
 
         <Preference
             app:key="logout"
-            app:title="@string/logout" />
+            app:title="@string/logout"
+            app:iconSpaceReserved="false" />
 
     </PreferenceCategory>
 
