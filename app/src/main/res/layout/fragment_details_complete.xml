@@ -6,6 +6,11 @@
     android:padding="10dp"
     tools:context=".fragments.DetailsCompleteFragment">
 
+    <nl.dionsegijn.konfetti.KonfettiView
+        android:id="@+id/konfettiView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <TextView
         android:id="@+id/tvFinalLocation"
         android:text="@string/final_location"

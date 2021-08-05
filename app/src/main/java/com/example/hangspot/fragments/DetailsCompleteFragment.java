@@ -1,5 +1,6 @@
 package com.example.hangspot.fragments;
 
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -20,6 +21,9 @@ import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import org.jetbrains.annotations.NotNull;
+
+import nl.dionsegijn.konfetti.models.Shape;
+import nl.dionsegijn.konfetti.models.Size;
 
 public class DetailsCompleteFragment extends Fragment {
 
@@ -80,6 +84,20 @@ public class DetailsCompleteFragment extends Fragment {
                     .replace(R.id.flDetailsContainer, new MapsFragment(group, this))
                     .addToBackStack("DetailsCompleteFragment")
                     .commit());
+
+            runKonfetti();
         }
+    }
+
+    private void runKonfetti() {
+        binding.konfettiView.build()
+                .addColors(Color.YELLOW, Color.GREEN, Color.MAGENTA, Color.CYAN)
+                .setDirection(0.0, 359.0)
+                .setSpeed(1f, 5f)
+                .setFadeOutEnabled(true)
+                .addShapes(Shape.Square.INSTANCE, Shape.Circle.INSTANCE)
+                .addSizes(new Size(12, 5f))
+                .setPosition(0f, 1500f, 0f, 0f)
+                .streamFor(300, 5000L);
     }
 }
