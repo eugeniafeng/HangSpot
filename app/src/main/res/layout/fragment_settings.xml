@@ -11,9 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_centerVertical="true"
-        android:background="@color/button"
-        android:fontFamily="casual"
-        android:text="@string/logout"
-        app:cornerRadius="10dp" />
+        android:text="@string/logout" />
 
 </RelativeLayout>

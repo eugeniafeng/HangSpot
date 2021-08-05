@@ -7,7 +7,6 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
-    <color name="button">@color/green_blue</color>
 
     <color name="lavender">#EFBDEB</color>
     <color name="violet">#B68CB8</color>
@@ -15,5 +14,6 @@
     <color name="blue_gray">#6461A0</color>
     <color name="violet_blue">#314CB6</color>
     <color name="green_blue">#0A81D1</color>
+    <color name="darker_green_blue">#0668AA</color>
 
 </resources>

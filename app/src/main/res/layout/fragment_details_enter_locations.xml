@@ -20,7 +20,6 @@
         android:layout_alignParentTop="true"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:fontFamily="casual"
         android:text="@string/enter_location"
         android:textColor="@color/violet_blue"
         android:textAppearance="@style/TextAppearance.AppCompat.Large" />
@@ -33,7 +32,6 @@
         android:layout_marginStart="20dp"
         android:layout_marginEnd="20dp"
         android:layout_marginBottom="20dp"
-        android:fontFamily="casual"
         android:text="@string/submit" />
 
     <TextView
@@ -43,7 +41,6 @@
         android:layout_above="@id/btnSubmit"
         android:layout_centerHorizontal="true"
         android:padding="10dp"
-        android:fontFamily="casual"
         android:gravity="center"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
         tools:text="Waiting on user" />

@@ -12,7 +12,6 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:fontFamily="casual"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         tools:text="GroupName" />
 
@@ -22,7 +21,6 @@
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/tvGroupName"
         android:layout_below="@+id/tvGroupName"
-        android:fontFamily="casual"
         tools:text="users" />
 
     <TextView
@@ -31,6 +29,5 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tvUsers"
         android:layout_alignStart="@+id/tvGroupName"
-        android:fontFamily="casual"
         tools:text="Status: Entering Locations" />
 </RelativeLayout>

@@ -9,7 +9,6 @@
         android:id="@+id/tvInfoName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="casual"
         android:singleLine="true"
         android:textColor="@color/violet_blue"
         android:textStyle="bold" />
@@ -18,7 +17,6 @@
         android:id="@+id/tvInfoDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fontFamily="casual"
         android:textColor="@color/blue_gray" />
 
 </LinearLayout>

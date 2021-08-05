@@ -3,7 +3,7 @@
     <style name="Theme.HangSpot" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/green_blue</item>
-        <item name="colorPrimaryVariant">@color/violet_blue</item>
+        <item name="colorPrimaryVariant">@color/darker_green_blue</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/lavender</item>
@@ -12,5 +12,6 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+        <item name="fontFamily">casual</item>
     </style>
 </resources>
