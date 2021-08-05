@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
         // set default selection
         fragmentManager.beginTransaction().replace(binding.flContainer.getId(), new GroupsFragment()).commit();
         binding.bottomBar.setItemActiveIndex(0);
-        getSupportActionBar().setTitle("Groups");
+        getSupportActionBar().setTitle("My Groups");
 
         // leave as anonymous function, not lambda to avoid ambiguity
         binding.bottomBar.setOnItemSelectedListener(new OnItemSelectedListener() {
@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
                 switch(i) {
                     case 0:
                         fragment = new GroupsFragment();
-                        title = "Groups";
+                        title = "My Groups";
                         break;
                     case 1:
                         fragment = new ComposeFragment();
