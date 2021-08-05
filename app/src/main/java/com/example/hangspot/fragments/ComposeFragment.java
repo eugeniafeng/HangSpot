@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.example.hangspot.R;
 import com.example.hangspot.activities.GroupDetailActivity;
+import com.example.hangspot.activities.MainActivity;
 import com.example.hangspot.adapters.UserAdapter;
 import com.example.hangspot.databinding.FragmentComposeBinding;
 import com.example.hangspot.models.Group;
@@ -147,6 +148,7 @@ public class ComposeFragment extends Fragment {
                 .replace(R.id.flContainer, new GroupsFragment())
                 .commit();
         ((SmoothBottomBar)getActivity().findViewById(R.id.bottomBar)).setItemActiveIndex(0);
+        ((MainActivity)getActivity()).getSupportActionBar().setTitle("My Groups");
         Intent intent = new Intent(getContext(), GroupDetailActivity.class);
         intent.putExtra(Constants.KEY_GROUP, Parcels.wrap(group));
         getContext().startActivity(intent);
