@@ -109,6 +109,14 @@ public class DetailsCandidatesFragment extends Fragment {
         query.findInBackground((objects, e) -> {
             adapter.clear();
             adapter.addAll(objects);
+
+            if (allCandidates.size() == 0) {
+                binding.tvNoCandidates.setVisibility(View.VISIBLE);
+                binding.btnDone.setEnabled(false);
+            } else {
+                binding.tvNoCandidates.setVisibility(View.GONE);
+                binding.btnDone.setEnabled(true);
+            }
         });
     }
 

@@ -24,4 +24,6 @@
     <string name="voting">Voting</string>
     <string name="voting_instructions">Rank your preferences from top to bottom.</string>
     <string name="forgot_password">Forgot password?</string>
+    <string name="no_groups">No groups yet! Create one by clicking the Compose tab below!</string>
+    <string name="no_candidates">No candidates yet! Add one by clicking the add button below.</string>
 </resources>

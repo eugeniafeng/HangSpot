@@ -35,8 +35,6 @@ import java.util.List;
 
 public class GroupsFragment extends Fragment {
 
-    private static final String TAG = "GroupsFragment";
-
     private FragmentGroupsBinding binding;
     protected GroupsAdapter adapter;
     protected List<Group> allGroups;
@@ -73,6 +71,12 @@ public class GroupsFragment extends Fragment {
                 .getObjectId(),
                 (object, e) -> {
             adapter.addAllReverse(object.getGroups());
+
+            if (allGroups.size() == 0) {
+                binding.tvNoGroups.setVisibility(View.VISIBLE);
+            } else {
+                binding.tvNoGroups.setVisibility(View.GONE);
+            }
 
             if (swipe) {
                 binding.swipeContainer.setRefreshing(false);
