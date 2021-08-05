@@ -66,8 +66,6 @@ public class DetailsCandidatesFragment extends Fragment {
         binding.rvCandidates.setLayoutManager(new LinearLayoutManager(getContext()));
         queryCandidates();
 
-        binding.swipeContainer.setOnRefreshListener(this::queryCandidates);
-
         try {
             if (!group.getRemainingUsersString().isEmpty()) {
                 String waiting = group.getRemainingUsersString() + " to finish entering candidates.";
@@ -111,7 +109,6 @@ public class DetailsCandidatesFragment extends Fragment {
         query.findInBackground((objects, e) -> {
             adapter.clear();
             adapter.addAll(objects);
-            binding.swipeContainer.setRefreshing(false);
         });
     }
 

@@ -11,20 +11,12 @@
         android:text="@string/location_candidates"
         style="@style/DetailsTitle" />
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-        android:id="@+id/swipeContainer"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvCandidates"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@id/tvWaiting"
-        android:layout_below="@id/tvLocationCandidates">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvCandidates"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerInParent="true" />
-
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        android:layout_below="@id/tvLocationCandidates" />
 
     <TextView
         android:id="@+id/tvWaiting"
