@@ -14,4 +14,12 @@
         <!-- Customize your theme here. -->
         <item name="fontFamily">casual</item>
     </style>
+
+    <style name="DetailsTitle" parent="TextAppearance.AppCompat.Large">
+        <item name="android:textColor">@color/violet_blue</item>
+        <item name="android:layout_alignParentTop">true</item>
+        <item name="android:layout_alignParentStart">true</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
 </resources>

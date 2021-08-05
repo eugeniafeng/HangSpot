@@ -7,13 +7,9 @@
 
     <TextView
         android:id="@+id/tvLocationCandidates"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
         android:padding="10dp"
         android:text="@string/location_candidates"
-        android:textColor="@color/violet_blue"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+        style="@style/DetailsTitle" />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeContainer"
