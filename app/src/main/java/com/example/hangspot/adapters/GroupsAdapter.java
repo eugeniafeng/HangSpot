@@ -13,6 +13,9 @@ import com.example.hangspot.activities.GroupDetailActivity;
 import com.example.hangspot.databinding.ItemGroupBinding;
 import com.example.hangspot.models.Group;
 import com.example.hangspot.utils.Constants;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 
 import org.parceler.Parcels;
@@ -83,8 +86,7 @@ public class GroupsAdapter extends RecyclerView.Adapter<GroupsAdapter.ViewHolder
         }
 
         public void bind(Group group) {
-            ParseQuery<Group> query = ParseQuery.getQuery("Group");
-            query.getInBackground(group.getObjectId(), (object, e) -> {
+            group.fetchIfNeededInBackground((GetCallback<Group>) (object, e) -> {
                 binding.tvGroupName.setText(object.getName());
                 binding.tvUsers.setText(object.getUsersString());
                 binding.tvStatus.setText(object.getStatusString());
