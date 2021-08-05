@@ -4,4 +4,6 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:textAppearance="?android:attr/textAppearanceMedium"
+    android:paddingStart="5dp"
+    android:paddingEnd="5dp"
     android:id="@+id/tvUsername" />
