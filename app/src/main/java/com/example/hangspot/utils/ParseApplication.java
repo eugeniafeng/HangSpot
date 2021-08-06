@@ -2,10 +2,12 @@ package com.example.hangspot.utils;
 
 import android.app.Application;
 
+import com.example.hangspot.R;
 import com.example.hangspot.models.Group;
 import com.example.hangspot.models.Location;
 import com.example.hangspot.models.UserGroups;
 import com.parse.Parse;
+import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 
 public class ParseApplication extends Application {
@@ -25,5 +27,9 @@ public class ParseApplication extends Application {
                 .server("https://parseapi.back4app.com")
                 .build()
         );
+
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        installation.put("GCMSenderId", R.string.gcm_sender_id);
+        installation.saveInBackground();
     }
 }
