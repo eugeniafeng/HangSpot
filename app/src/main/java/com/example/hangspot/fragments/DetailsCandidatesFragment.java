@@ -26,6 +26,7 @@ import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -142,12 +143,30 @@ public class DetailsCandidatesFragment extends Fragment {
                             userStatuses.put(ParseUser.getCurrentUser().getUsername(), true);
                             group.setUserStatuses(userStatuses);
                             if (group.checkStatus()) {
-                                group.initializeRankings(allCandidates);
-                                getActivity()
-                                        .getSupportFragmentManager()
-                                        .beginTransaction()
-                                        .replace(R.id.flDetailsContainer, new DetailsVotingFragment(group))
-                                        .commit();
+                                ParseQuery<Location> candidatesQuery = ParseQuery.getQuery("Location");
+                                candidatesQuery.include("*");
+                                candidatesQuery.whereEqualTo(Location.KEY_GROUP, group);
+                                candidatesQuery.whereEqualTo(Location.KEY_TYPE, Constants.TYPE_CANDIDATE);
+                                candidatesQuery.findInBackground((candidates, e2) -> {
+                                    try {
+                                        group.initializeRankings(candidates);
+                                    } catch (JSONException jsonException) {
+                                        jsonException.printStackTrace();
+                                    }
+                                    group.saveInBackground(e3 -> {
+                                        if (e3 == null) {
+                                            Log.i(TAG, "Group status saved successfully");
+                                            pd.dismiss();
+                                            getActivity()
+                                                    .getSupportFragmentManager()
+                                                    .beginTransaction()
+                                                    .replace(R.id.flDetailsContainer, new DetailsVotingFragment(group))
+                                                    .commit();
+                                        } else {
+                                            e3.printStackTrace();
+                                        }
+                                    });
+                                });
                             } else {
                                 binding.btnDone.setEnabled(false);
                                 binding.btnAdd.setEnabled(false);
@@ -159,20 +178,20 @@ public class DetailsCandidatesFragment extends Fragment {
                                 } else {
                                     binding.tvWaiting.setVisibility(View.GONE);
                                 }
+
+                                group.saveInBackground(e2 -> {
+                                    if (e2 == null) {
+                                        Log.i(TAG, "Group status saved successfully");
+                                        pd.dismiss();
+                                    } else {
+                                        e2.printStackTrace();
+                                    }
+                                });
                             }
                         } catch (JSONException jsonException) {
                             jsonException.printStackTrace();
                             binding.tvWaiting.setVisibility(View.GONE);
                         }
-
-                        group.saveInBackground(e2 -> {
-                            if (e2 == null) {
-                                Log.i(TAG, "Group status saved successfully");
-                                pd.dismiss();
-                            } else {
-                                e2.printStackTrace();
-                            }
-                        });
                     } else {
                         e1.printStackTrace();
                     }
