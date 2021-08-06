@@ -142,13 +142,7 @@ public class ComposeFragment extends Fragment {
 
     // First switch to groups fragment so back button will lead to correct place
     public void showDetail(Group group) {
-        getActivity()
-                .getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.flContainer, new GroupsFragment())
-                .commit();
-        ((SmoothBottomBar)getActivity().findViewById(R.id.bottomBar)).setItemActiveIndex(0);
-        ((MainActivity)getActivity()).getSupportActionBar().setTitle("My Groups");
+        ((MainActivity) getActivity()).composeToGroupsFragment();
         Intent intent = new Intent(getContext(), GroupDetailActivity.class);
         intent.putExtra(Constants.KEY_GROUP, Parcels.wrap(group));
         getContext().startActivity(intent);
