@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.hangspot.R;
+import com.example.hangspot.activities.GroupDetailActivity;
 import com.example.hangspot.adapters.CustomWindowAdapter;
 import com.example.hangspot.databinding.FragmentMapsBinding;
 import com.example.hangspot.models.Group;
@@ -72,6 +73,7 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         binding = FragmentMapsBinding.inflate(inflater, container, false);
+        ((GroupDetailActivity) getActivity()).disableSwipeRefresh();
         return binding.getRoot();
     }
 

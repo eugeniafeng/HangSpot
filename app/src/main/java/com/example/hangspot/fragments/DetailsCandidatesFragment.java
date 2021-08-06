@@ -10,23 +10,19 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.hangspot.R;
+import com.example.hangspot.activities.GroupDetailActivity;
 import com.example.hangspot.adapters.CandidatesAdapter;
 import com.example.hangspot.databinding.FragmentDetailsCandidatesBinding;
 import com.example.hangspot.models.Group;
 import com.example.hangspot.models.Location;
 import com.example.hangspot.utils.Constants;
-import com.parse.FindCallback;
-import com.parse.GetCallback;
-import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
-import com.parse.SaveCallback;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
@@ -55,6 +51,7 @@ public class DetailsCandidatesFragment extends Fragment {
         binding = FragmentDetailsCandidatesBinding.inflate(inflater, container, false);
         allCandidates = new ArrayList<>();
         adapter = new CandidatesAdapter(getContext(), allCandidates, this, group);
+        ((GroupDetailActivity) getActivity()).enableSwipeRefresh();
         // Inflate the layout for this fragment
         return binding.getRoot();
     }

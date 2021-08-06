@@ -79,4 +79,12 @@ public class GroupDetailActivity extends AppCompatActivity {
             }
         });
     }
+
+    public void enableSwipeRefresh() {
+        binding.swipeContainer.setEnabled(true);
+    }
+
+    public void disableSwipeRefresh() {
+        binding.swipeContainer.setEnabled(false);
+    }
 }
