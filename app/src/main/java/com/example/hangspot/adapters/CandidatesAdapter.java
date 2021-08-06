@@ -10,9 +10,11 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.hangspot.R;
 import com.example.hangspot.databinding.ItemCandidateBinding;
 import com.example.hangspot.fragments.DetailsVotingFragment;
 import com.example.hangspot.models.Location;
+import com.parse.ParseUser;
 
 import java.util.List;
 
@@ -74,8 +76,9 @@ public class CandidatesAdapter extends RecyclerView.Adapter<CandidatesAdapter.Vi
             binding.tvDescription.setVisibility(
                     candidate.getDescription().isEmpty() ? View.GONE : View.VISIBLE);
             if (fragment instanceof DetailsVotingFragment) {
-                binding.ivReorder.setVisibility(View.VISIBLE);
-                binding.ivReorder.setOnTouchListener((v, event) -> {
+                binding.ivAction.setImageResource(R.drawable.ic_baseline_reorder_24);
+                binding.ivAction.setVisibility(View.VISIBLE);
+                binding.ivAction.setOnTouchListener((v, event) -> {
                     if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
                         ((DetailsVotingFragment) fragment).startDragging(ViewHolder.this);
                         return true;
@@ -83,7 +86,11 @@ public class CandidatesAdapter extends RecyclerView.Adapter<CandidatesAdapter.Vi
                     return false;
                 });
             } else {
-                binding.ivReorder.setVisibility(View.GONE);
+                if (ParseUser.getCurrentUser().getObjectId().equals(candidate.getAddedBy().getObjectId())) {
+                    binding.ivAction.setImageResource(R.drawable.ic_baseline_close_24);
+                } else {
+                    binding.ivAction.setVisibility(View.GONE);
+                }
             }
         }
     }

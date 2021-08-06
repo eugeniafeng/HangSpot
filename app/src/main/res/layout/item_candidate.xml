@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_toStartOf="@id/ivReorder"
+        android:layout_toStartOf="@id/ivAction"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
         android:textColor="@android:color/primary_text_light"
         tools:text="Location Name" />
@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tvLocationName"
         android:layout_alignStart="@+id/tvLocationName"
-        android:layout_toStartOf="@id/ivReorder"
+        android:layout_toStartOf="@id/ivAction"
         tools:text="Address" />
 
     <TextView
@@ -33,11 +33,11 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tvAddress"
         android:layout_alignStart="@+id/tvLocationName"
-        android:layout_toStartOf="@id/ivReorder"
+        android:layout_toStartOf="@id/ivAction"
         tools:text="Description" />
 
     <ImageView
-        android:id="@+id/ivReorder"
+        android:id="@+id/ivAction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
