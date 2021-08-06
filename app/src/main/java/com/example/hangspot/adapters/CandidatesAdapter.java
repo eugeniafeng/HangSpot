@@ -116,8 +116,6 @@ public class CandidatesAdapter extends RecyclerView.Adapter<CandidatesAdapter.Vi
                                 e.printStackTrace();
                             }
                         });
-                        // do i need to implement equals?
-
                     });
                 } else {
                     binding.ivAction.setVisibility(View.GONE);
