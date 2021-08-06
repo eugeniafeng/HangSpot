@@ -102,7 +102,7 @@ public class DetailsVotingFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentDetailsVotingBinding.inflate(inflater, container, false);
         allCandidates = new ArrayList<>();
-        adapter = new CandidatesAdapter(getContext(), allCandidates, this);
+        adapter = new CandidatesAdapter(getContext(), allCandidates, this, group);
         return binding.getRoot();
     }
 

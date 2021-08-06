@@ -1,6 +1,7 @@
 package com.example.hangspot.adapters;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -13,8 +14,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.hangspot.R;
 import com.example.hangspot.databinding.ItemCandidateBinding;
 import com.example.hangspot.fragments.DetailsVotingFragment;
+import com.example.hangspot.models.Group;
 import com.example.hangspot.models.Location;
+import com.parse.DeleteCallback;
+import com.parse.ParseException;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import java.util.List;
 
@@ -23,11 +28,13 @@ public class CandidatesAdapter extends RecyclerView.Adapter<CandidatesAdapter.Vi
     private Context context;
     private List<Location> candidates;
     private Fragment fragment;
+    private Group group;
 
-    public CandidatesAdapter(Context context, List<Location> candidates, Fragment fragment) {
+    public CandidatesAdapter(Context context, List<Location> candidates, Fragment fragment, Group group) {
         this.context = context;
         this.candidates = candidates;
         this.fragment = fragment;
+        this.group = group;
     }
 
     @NonNull
@@ -88,6 +95,30 @@ public class CandidatesAdapter extends RecyclerView.Adapter<CandidatesAdapter.Vi
             } else {
                 if (ParseUser.getCurrentUser().getObjectId().equals(candidate.getAddedBy().getObjectId())) {
                     binding.ivAction.setImageResource(R.drawable.ic_baseline_close_24);
+                    binding.ivAction.setOnClickListener(v -> {
+                        int ix = candidates.indexOf(candidate);
+                        candidates.remove(candidate);
+                        notifyItemRemoved(ix);
+
+                        List<Location> locations = group.getLocationCandidates();
+                        locations.remove(candidate);
+                        group.setLocationCandidates(locations);
+                        group.saveInBackground(e -> {
+                            if (e == null) {
+                                candidate.deleteInBackground(e1 -> {
+                                    if (e1 == null) {
+                                        Log.i("CandidatesAdapter", "Successfully deleted candidate");
+                                    } else {
+                                        e1.printStackTrace();
+                                    }
+                                });
+                            } else {
+                                e.printStackTrace();
+                            }
+                        });
+                        // do i need to implement equals?
+
+                    });
                 } else {
                     binding.ivAction.setVisibility(View.GONE);
                 }
