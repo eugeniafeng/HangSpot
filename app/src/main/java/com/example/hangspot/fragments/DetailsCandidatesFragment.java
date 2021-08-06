@@ -98,6 +98,7 @@ public class DetailsCandidatesFragment extends Fragment {
         if (userStatus) {
             binding.btnDone.setEnabled(false);
             binding.btnAdd.setEnabled(false);
+            binding.ivOverlay.setVisibility(View.VISIBLE);
         }
     }
 
@@ -170,6 +171,7 @@ public class DetailsCandidatesFragment extends Fragment {
                             } else {
                                 binding.btnDone.setEnabled(false);
                                 binding.btnAdd.setEnabled(false);
+                                binding.ivOverlay.setVisibility(View.VISIBLE);
                                 if (!group.getRemainingUsersString().isEmpty()) {
                                     String waiting = group.getRemainingUsersString()
                                             + " to finish entering candidates.";
