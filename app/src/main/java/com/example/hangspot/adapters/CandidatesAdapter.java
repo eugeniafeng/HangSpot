@@ -99,19 +99,9 @@ public class CandidatesAdapter extends RecyclerView.Adapter<CandidatesAdapter.Vi
                         int ix = candidates.indexOf(candidate);
                         candidates.remove(candidate);
                         notifyItemRemoved(ix);
-
-                        List<Location> locations = group.getLocationCandidates();
-                        locations.remove(candidate);
-                        group.setLocationCandidates(locations);
-                        group.saveInBackground(e -> {
+                        candidate.deleteInBackground(e -> {
                             if (e == null) {
-                                candidate.deleteInBackground(e1 -> {
-                                    if (e1 == null) {
-                                        Log.i("CandidatesAdapter", "Successfully deleted candidate");
-                                    } else {
-                                        e1.printStackTrace();
-                                    }
-                                });
+                                Log.i("CandidatesAdapter", "Successfully deleted candidate");
                             } else {
                                 e.printStackTrace();
                             }

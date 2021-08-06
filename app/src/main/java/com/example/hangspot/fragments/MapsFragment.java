@@ -190,25 +190,6 @@ public class MapsFragment extends Fragment implements GoogleMap.OnMapLongClickLi
         candidate.saveInBackground(e -> {
             if (e == null) {
                 Log.i(TAG, "Successfully saved location candidate");
-
-                ParseQuery<Group> query = ParseQuery.getQuery("Group");
-                query.getInBackground(group.getObjectId(), (object, e1) -> {
-                    if (e1 == null) {
-                        group = object;
-                        List<Location> candidates = group.getLocationCandidates();
-                        candidates.add(candidate);
-                        group.setLocationCandidates(candidates);
-                        group.saveInBackground(e2 -> {
-                            if (e2 == null) {
-                                Log.i(TAG, "Successfully saved location candidate in group");
-                            } else {
-                                e2.printStackTrace();
-                            }
-                        });
-                    } else {
-                        e1.printStackTrace();
-                    }
-                });
             } else {
                 e.printStackTrace();
             }

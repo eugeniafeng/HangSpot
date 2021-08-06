@@ -82,14 +82,6 @@ public class Group extends ParseObject {
         return userList.substring(0, userList.length()-2);
     }
 
-    public List<Location> getLocationCandidates() {
-        return getList(KEY_LOCATION_CANDIDATES);
-    }
-
-    public void setLocationCandidates(List<Location> locationCandidates) {
-        put(KEY_LOCATION_CANDIDATES, locationCandidates);
-    }
-
     public JSONObject getRankings() {
         return getJSONObject(KEY_RANKINGS);
     }
@@ -98,9 +90,9 @@ public class Group extends ParseObject {
         put(KEY_RANKINGS, rankings);
     }
 
-    public void initializeRankings() throws JSONException {
+    public void initializeRankings(List<Location> candidates) throws JSONException {
         JSONObject rankings = new JSONObject();
-        for (Location candidate : getLocationCandidates()) {
+        for (Location candidate : candidates) {
             rankings.put(candidate.getObjectId(), 0);
         }
         setRankings(rankings);

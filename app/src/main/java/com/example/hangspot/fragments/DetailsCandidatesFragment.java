@@ -142,7 +142,7 @@ public class DetailsCandidatesFragment extends Fragment {
                             userStatuses.put(ParseUser.getCurrentUser().getUsername(), true);
                             group.setUserStatuses(userStatuses);
                             if (group.checkStatus()) {
-                                group.initializeRankings();
+                                group.initializeRankings(allCandidates);
                                 getActivity()
                                         .getSupportFragmentManager()
                                         .beginTransaction()
