@@ -21,6 +21,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.parse.GetCallback;
@@ -101,6 +102,12 @@ public class DetailsEnterLocationsFragment extends Fragment {
                 .findFragmentById(R.id.autocomplete_fragment);
         autocompleteFragment.setPlaceFields(
                 Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.ADDRESS, Place.Field.LAT_LNG));
+
+        // only to set location for emulator
+        autocompleteFragment.setLocationBias(RectangularBounds.newInstance(
+                new LatLng(39.944412, -75.327577),
+                new LatLng(40.048167, -75.146331)));
+
         autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull @NotNull Place place) {
