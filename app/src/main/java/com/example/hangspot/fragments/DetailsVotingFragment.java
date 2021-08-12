@@ -25,6 +25,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.hangspot.R;
+import com.example.hangspot.activities.GroupDetailActivity;
 import com.example.hangspot.adapters.CandidatesAdapter;
 import com.example.hangspot.databinding.FragmentDetailsVotingBinding;
 import com.example.hangspot.models.Group;
@@ -79,6 +80,7 @@ public class DetailsVotingFragment extends Fragment {
             super.onSelectedChanged(viewHolder, actionState);
             if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
                 viewHolder.itemView.setBackgroundColor(getResources().getColor(R.color.light_blue_gray));
+                ((GroupDetailActivity) getActivity()).disableSwipeRefresh();
             }
         }
 
@@ -87,6 +89,7 @@ public class DetailsVotingFragment extends Fragment {
                               @NonNull @NotNull RecyclerView.ViewHolder viewHolder) {
             super.clearView(recyclerView, viewHolder);
             viewHolder.itemView.setBackgroundColor(Color.WHITE);
+            ((GroupDetailActivity) getActivity()).enableSwipeRefresh();
         }
     };
 
