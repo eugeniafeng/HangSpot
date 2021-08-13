@@ -8,7 +8,7 @@
 
 ## Overview
 ### Description
-HangSpot allows friend groups to map out each others' location and pick a central spot to meet up, providing a solution to the indecisiveness that comes with deciding where to meet friends. Friends can decide on a meet-up spot based on their favorite locations or the app's suggestions, or the app can randomly pick a spot for them. 
+HangSpot aims to help friends spend less time deciding where to meet up, and spend more time hanging out! HangSpot allows friend groups to map out each others' location and run through a structured decision-making process to pick a central spot to meet up, alleviating the indecisiveness that comes with group decisions.
 
 ### App Evaluation
 - **Category:** Social
@@ -26,25 +26,35 @@ HangSpot allows friend groups to map out each others' location and pick a centra
 
 * User can register a new account
 * User can login/logout
-* User can invite friends to a group
-* User can join existing group
+* User can create a group with friends
 * User can view a list of groups they are in
-* User can calculate central location once all friends have joined
-* User can select a location within a radius of the central location
+* User can enter location
+* User can calculate and view central location once all friends have joined
+* User can view a map of friends locations
+* User can select locations within a radius of the central location
+* User can view a list of location candidates selected by friends
 * User can rank all selected locations
 * User can view the final location
 
 **Optional Nice-to-have Stories**
 
 * User can set a radius around the central location or remove it
-* User can select multiple locations near the central location
 * User can view and select from suggested locations
-* User can search for a location
 * User can chat within the group
+* User can choose from certain categories of locations
+* User can delete locations they have added from the candidates
+* User can add a caption for each location candidate
 * User can export the final location into maps app to navigate there
+* User can opt to use location services
 * User can select to calculate the central location based on commute time/mode of transportation
+* User can search for location
+* User can add/remove people from a group
+* User can invite/accept or decline invite in groups
 * User can opt for a randomized location selection rather than the voting system
 * User can use the voting-based decision making for restaurants
+* User can view rating of location
+* User can set a time limit on each status
+* User can rate the final location and leave a review
 
 ### 2. Screen Archetypes
 
@@ -105,8 +115,7 @@ HangSpot allows friend groups to map out each others' location and pick a centra
 | objectId  | String                               | Unique id for the user (default field)         |
 | username  | String                               | Username used to log in                        |
 | password  | String                               | Password used to log in                        |
-| email     | String                               | Email associated with account                  |
-| groups    | Array of Pointers to Group objectIds | List of groups the user is in                  |
+| userGroups| Pointers to UserGroups object | Pointer to an object that has a list of all groups the user is in                  |
 | createdAt | DateTime                             | Date when post is created (default field)      |
 | updatedAt | DateTime                             | Date when post is last updated (default field) |
 
@@ -114,8 +123,8 @@ HangSpot allows friend groups to map out each others' location and pick a centra
 | Property           | Type                           | Description                                                                                          |
 | ------------------ | ------------------------------ | ---------------------------------------------------------------------------------------------------- |
 | objectId           | String                         | Unique id for the user (default field)                                                               |
+| name           | String                         | Name for the group                                                              |
 | users              | Array of Pointers to Users     | List of users included in the group                                                                  |
-| locationCandidates | Array of Pointers to Locations | List of possible locations chosen by users in the group                                              |
 | rankings           | JSON Object/map                | List of the rankings of each user                                                                    |
 | status             | Number                         | Status of group - 0 for entering locations, 1 for selecting locations, 2 for voting, 3 for completed |
 | userStatuses       | JSON Object/map                | List of if user has completed the task for the current status                                        |
@@ -129,19 +138,27 @@ HangSpot allows friend groups to map out each others' location and pick a centra
 | Property    | Type             | Description                                    |
 | ----------- | ---------------- | ---------------------------------------------- |
 | objectId    | String           | Unique id for the user (default field)         |
-| lat         | Number           | Latitude of the location                       |
-| lon         | Number           | Longitude of the location                      |
+| type         | String           | Type of location (home, center, or candidate)                       |
+| coordinates         | GeoPoint           | Latitude and longitude of the location                       |
 | name        | String           | Name of the location                           |
 | description | String           | User entered description                       |
 | address     | String           | Address of the location                        |
-| city        | String           | City of the location                           |
-| state       | String           | State of the location                          |
-| postalCode  | String           | Zip code of the location                       |
-| country     | String           | Country of the location                        |
 | group       | Pointer to Group | Group the location is relevant to              |
 | addedBy     | Pointer to User  | User who added the location to the candidates  |
+| placesId     | String  | ID to be used with Google's Places API  |
 | createdAt   | DateTime         | Date when post is created (default field)      |
 | updatedAt   | DateTime         | Date when post is last updated (default field) |
+
+**Model: UserGroups**
+
+| Property  | Type                                 | Description                                    |
+| --------- | ------------------------------------ | ---------------------------------------------- |
+| objectId  | String                               | Unique id for the user (default field)         |
+| username  | String                               | Username used to log in                        |
+| password  | String                               | Password used to log in                        |
+| groups    | Array of Pointers to Groups          | List of Groups the user is in                  |
+| createdAt | DateTime                             | Date when post is created (default field)      |
+| updatedAt | DateTime                             | Date when post is last updated (default field) |
 
   
 ### Networking
